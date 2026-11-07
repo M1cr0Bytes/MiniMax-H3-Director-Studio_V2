@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
-// This extension is ONLY for the H3 Director Studio V1 node. It does not patch
+// This extension is ONLY for the H3 Director Studio node. It does not patch
 // Motion Context, samplers, models, reference loaders, or installed custom nodes.
 const TYPE = 'H3DirectorStudioV1';
 const ID = { resolution: 73, baseSteps: 71, upscaleSteps: 135,
@@ -79,7 +79,7 @@ function decode(raw) {
 }
 const encode = shots => shots.map((shot,i)=>`[SEGMENT ${i+1}]\n${shot??''}`).join('\n\n');
 // Technical nodes are no longer in the canvas: virtual read/write adapters map
-// the Director controls to persistent widgets on the node.
+// the original Studio UI to persistent widgets on the integrated Director.
 let studioVirtualNodes = new Map();
 const graphNode = id => studioVirtualNodes.get(id) ?? null;
 function widget(node,name,idx=null) {
@@ -128,7 +128,7 @@ function mirror(node) {
   for (const name of ['general_prompt','segments_text','project_key','production_mode',
     'render_mode','duration_s','ratio','megapixels','base_steps','refine_steps',
     'upscale_multiplier','clip_index','h3_rng_value','seed_mode',
-    'base_sampler','base_scheduler','upscale_sampler','upscale_scheduler','upscaler_model']) {
+    'base_sampler','base_scheduler','upscale_sampler','upscale_scheduler','upscaler_model','refine_denoise']) {
     source[name]=node.widgets?.find(w=>w.name===name);
     if (!source[name]) {console.warn('[H3 Studio] Missing persistent widget:',name);return;}
     // Keep the persistent backend value/serialization while removing the DOM canvas space.
@@ -157,10 +157,10 @@ function mirror(node) {
   const SAMPLER_CHOICES=['euler','euler_ancestral','heun','dpm_2','dpm_2_ancestral',
     'lms','dpmpp_2m','dpmpp_2m_sde','res_multistep','uni_pc','ddim'];
   const SCHEDULERS=['simple','normal','karras','exponential','sgm_uniform','ddim_uniform','beta','linear_quadratic'];
-  const UPSCALER_MODELS=[]; // Available upscaler models are loaded dynamically.
-  // Read the available options from the native ComfyUI
+  const UPSCALER_MODELS=[]; // Listado real de MinimaxH3LatentUpscaler3D, NO una lista fija.
+  // H3 V1: Unlike the old fixed eleven-item list, mirror the native ComfyUI
   // KSamplerSelect and BasicScheduler definitions. Both choices update together.
-  // Frontend options do not modify the sampling engine or stored values.
+  // This is FRONTEND ONLY: model graph, saved values and sampling engine unchanged.
   const replaceChoiceValues=(target,values)=>{
     const valid=Array.isArray(values) ? values.filter(v=>typeof v==='string' && v.trim()) : [];
     if(valid.length)target.splice(0,target.length,...new Set(valid));
@@ -189,7 +189,7 @@ function mirror(node) {
   virtual(ID.save,[valueWidget('filename_prefix',[],{get:()=>`${source.project_key.value}/clip`,set:()=>{}}),
     valueWidget('clip_index',[],{get:()=>Number(source.clip_index.value),set:v=>source.clip_index.value=Number(v)})]);
   virtual(ID.preview,[]); virtual(ID.final,[]);
-  const chainMeta={awaiting:false,chaining:false,remaining:0};
+  const chainMeta={awaiting:false,chaining:false,remaining:0,releasingModels:false};
   virtual(ID.chain,[valueWidget('segments',[],{get:()=>chainMeta.remaining,set:v=>chainMeta.remaining=Number(v)})])._h3mc=chainMeta;
   let chainRunOwner=false;
   // The Studio becomes the source of truth; the on-disk latent slot remains
@@ -207,8 +207,8 @@ function mirror(node) {
   hideNativeWidgets();
   const state=()=>Object.fromEntries(Object.keys(source).map(k=>[k,source[k].value]));
   function keep(name,v) {source[name].value=v;source[name].callback?.(v);app.graph?.setDirtyCanvas?.(true,true);}
-  // Keep the panel inside the node's resize borders. The DOM widget has
-  // zero margin, leaving resize controls accessible.
+  // Keep the panel inside the node's resize borders.  In V8 the DOM widget had
+  // zero margin and occupied the entire canvas hit area, intercepting corner drags.
   const panel=$('div',{display:'flex',flexDirection:'column',gap:'6px',boxSizing:'border-box',
     padding:'11px',width:'100%',height:'100%',overflowY:'auto',borderRadius:'3px',
     position:'relative',minWidth:'0',minHeight:'0',
@@ -229,9 +229,38 @@ function mirror(node) {
   const count=$('span',{fontSize:'12px',color:colors.sub});
   const status=$('div',{fontSize:'12px',color:colors.green,marginTop:'2px'});
   const actions=row(panel);
-  const run=button('▶ Run / Re-roll',()=>dispatch('Run/Re-roll'),actions);
-  const approve=button('✓ Approve',()=>dispatch('Approve'),actions);
-  const chain=button('▶▶ Chain',()=>dispatch('Chain'),actions,{background:'#235844'});
+  const fullRender=button('▶ Generate BASE + Upscale',async()=>{
+    if(active()){warning.textContent='A clip is rendering; wait for it to finish.';return;}
+    keep('render_mode','Final');
+    syncControls();
+    await queueOnce();
+  },actions,{background:'#5a4478'});
+  const renderBase=button('▶ Generate BASE',async()=>{
+    if(active()){warning.textContent='A clip is rendering; wait for it to finish.';return;}
+    keep('render_mode','Preview base');
+    syncControls();
+    await queueOnce();
+  },actions,{background:'#285a74'});
+  const acceptBase=button('✓ Accept BASE → Upscale',async()=>{
+    if(active()){warning.textContent='A clip is rendering; wait for it to finish.';return;}
+    const curr=Number(source.clip_index.value);
+    try{
+      if(!await slotExists(curr)){
+        warning.textContent=`Clip ${curr} has no saved BASE latent. Generate and review BASE first.`;return;
+      }
+    }catch(e){warning.textContent=`Unable to verify BASE latent: ${e.message}`;return;}
+    keep('render_mode','Upscale accepted base');
+    syncControls();
+    await queueOnce({randomizeSeed:false});
+  },actions,{background:'#2b6b4d'});
+  const approve=button('✓ Approve → next BASE',()=>dispatch('Approve'),actions);
+  const chain=button('▶▶ Chain · BASE + Upscale',async()=>{
+    if(chainMeta.chaining){await nativeAction('Stop');return;}
+    if(active()){warning.textContent='A clip is rendering; wait for it to finish.';return;}
+    keep('render_mode','Final');
+    syncControls();
+    await nativeAction('Chain');
+  },actions,{background:'#235844'});
   const reset=button('↺ Reset indices',()=>{
     if (window.confirm('Reset to Load 0 / Save 1? Existing latent files are kept.')) dispatch('Reset');
   },actions);
@@ -246,145 +275,11 @@ function mirror(node) {
   const clipHint=$('span',{...S.caption,alignSelf:'center'},'For clip N, Load = N−1 / Save = N.');
   jump.append(clipHint);
   panel.append(status,count,warning);
-  // Built-in live monitor. Uses ComfyUI's own progress / binary preview events.
-  // Receive ComfyUI and KJNodes preview events directly; listeners are removed with the node.
-  line(panel);headline(panel,'LIVE GENERATION MONITOR');
-  const monitor=$('section',{background:colors.panel,border:`1px solid ${colors.line}`,
-    borderRadius:'7px',padding:'8px',display:'flex',flexDirection:'column',gap:'6px'});
-  const monitorInfo=$('div',{...S.caption},'Ready · no active render');
-  const monitorTrack=$('div',{height:'8px',width:'100%',background:colors.field,
-    borderRadius:'5px',overflow:'hidden'});
-  const monitorFill=$('div',{height:'100%',width:'0%',background:'#39a978',transition:'width 120ms linear'});
-  monitorTrack.append(monitorFill);
-  const monitorImage=$('img',{width:'100%',height:'auto',maxHeight:'290px',objectFit:'contain',
-    borderRadius:'4px',display:'none',background:'#12151a'});
-  const monitorVideo=$('video',{width:'100%',height:'auto',maxHeight:'290px',objectFit:'contain',
-    borderRadius:'4px',display:'none',background:'#12151a'});
-  monitorVideo.autoplay=true;monitorVideo.muted=true;monitorVideo.loop=true;monitorVideo.playsInline=true;monitorVideo.controls=false;
-  const monitorPlaceholder=$('div',{...S.caption,textAlign:'center',padding:'15px'},
-    'Live preview appears here when ComfyUI or KJ Preview Override sends frames.');
-  const monitorFooter=$('div',{...S.caption},'Progress is reported by ComfyUI. KJ Preview Override images are used when available.');
-  monitor.append(monitorInfo,monitorTrack,monitorVideo,monitorImage,monitorPlaceholder,monitorFooter);
-  const monitorArea=$('details',{open:true});
-  monitorArea.append($('summary',{fontSize:'12px',cursor:'pointer',fontWeight:'bold'},'Monitor / Preview'),monitor);
-  panel.append(monitorArea);
-  let previewObjectURL=null, monitorStart=0,monitorLastNode=null,monitorPct=0;
-  function monitorShowPlaceholder(){
-    monitorImage.style.display='none';
-    monitorVideo.style.display='none';
-    try{ monitorVideo.pause(); }catch{}
-    monitorPlaceholder.style.display='block';
-  }
-  function monitorShowImage(src){
-    try{ monitorVideo.pause(); }catch{}
-    monitorVideo.removeAttribute('src'); monitorVideo.load?.();
-    monitorImage.src=src;
-    monitorImage.style.display='block';
-    monitorVideo.style.display='none';
-    monitorPlaceholder.style.display='none';
-  }
-  function monitorShowVideo(src){
-    monitorImage.style.display='none';
-    monitorVideo.src=src;
-    monitorVideo.style.display='block';
-    monitorPlaceholder.style.display='none';
-    const play=monitorVideo.play?.();
-    if(play?.catch)play.catch(()=>{});
-  }
-  // Passive listeners display preview and progress events from expanded runtime nodes.
-  const monitorIsOwner=()=>true;
-  function monitorSetStatus(message,pct){
-    monitorInfo.textContent=message;
-    if(Number.isFinite(pct))monitorPct=Math.max(0,Math.min(100,pct));
-    monitorFill.style.width=`${monitorPct}%`;
-  }
-  function monitorBegin(){
-    monitorStart=Date.now();monitorLastNode=null;monitorPct=0;
-    monitorShowPlaceholder();
-    monitorSetStatus(`Rendering clip ${source.clip_index.value} of ${shots.length} · starting`,0);
-  }
-  function monitorEnd(ok){
-    const elapsed=monitorStart?` · ${Math.round((Date.now()-monitorStart)/1000)}s`:'';
-    monitorSetStatus(`${ok?'Completed':'Stopped / error'} · clip ${source.clip_index.value}${elapsed}`,ok?100:monitorPct);
-  }
-  function monitorProgress(event){
-    if(!monitorIsOwner())return;
-    const detail=event?.detail??{};
-    const val=Number(detail.value),max=Number(detail.max);
-    const pct=max>0&&Number.isFinite(val)?Math.round(100*val/max):monitorPct;
-    monitorSetStatus(`Clip ${source.clip_index.value}/${shots.length} · sampling ${Number.isFinite(val)?val:'?'} / ${max>0?max:'?'} (${pct}%)`,pct);
-  }
-  function monitorExecuting(event){
-    if(!monitorIsOwner())return;
-    const name=event?.detail?.node;
-    if(name!==undefined && name!==null){
-      monitorLastNode=String(name);
-      monitorFooter.textContent=`Executing node ${monitorLastNode} · live images depend on preview support`;
-    }
-  }
-  function monitorPreview(event){
-    if(!monitorIsOwner())return;
-    const payload=event?.detail;
-    // ComfyUI api.js emits a Blob in b_preview; some versions expose it in
-    // a nested detail field. Ignore unknown formats instead of crashing.
-    const blob=payload instanceof Blob?payload:(payload?.blob instanceof Blob?payload.blob:null);
-    if(!blob)return;
-    if(previewObjectURL)try{URL.revokeObjectURL(previewObjectURL);}catch{}
-    previewObjectURL=URL.createObjectURL(blob);
-    monitorShowImage(previewObjectURL);
-  }
-  // Decode bounded base64 media payloads into browser Blob objects.
-  // Avoid huge data: URLs for animated MP4/WebP previews.
-  function decodeKJMedia(data,mime){
-    if(!['image/jpeg','image/png','image/webp','video/mp4'].includes(mime))return null;
-    if(typeof data!=='string'||data.length>34_000_000)return null;
-    try{
-      const binary=atob(data),chunks=[];
-      for(let i=0;i<binary.length;i+=32768){
-        const part=binary.slice(i,i+32768),b=new Uint8Array(part.length);
-        for(let j=0;j<part.length;j++)b[j]=part.charCodeAt(j);
-        chunks.push(b);
-      }
-      return new Blob(chunks,{type:mime});
-    }catch(_){return null;}
-  }
-  function monitorMedia(blob,mime){
-    const previous=previewObjectURL;
-    previewObjectURL=URL.createObjectURL(blob);
-    if(mime==='video/mp4')monitorShowVideo(previewObjectURL);
-    else monitorShowImage(previewObjectURL);
-    if(previous)URL.revokeObjectURL(previous);
-  }
-  function monitorKJPreview(event){
-    if(!monitorIsOwner())return;
-    const payload=event?.detail??{};
-    const b64=payload.image;
-    if(!b64)return;
-    const mime=String(payload.mime||'image/jpeg');
-    const step=Number(payload.step), total=Number(payload.total);
-    if(Number.isFinite(step) && total>0){
-      const pct=Math.max(monitorPct, Math.round(100*step/total));
-      monitorSetStatus(`Clip ${source.clip_index.value}/${shots.length} · sampling ${step} / ${total} (${pct}%)`, pct);
-    }
-    monitorFooter.textContent=`KJ Preview Override${payload.node_id!=null?` · node ${payload.node_id}`:''}${Number.isFinite(step)&&total>0?` · step ${step}/${total}`:''}`;
-    const blob=decodeKJMedia(b64,mime);
-    if(blob)monitorMedia(blob,mime);
-  }
-  api.addEventListener('progress',monitorProgress);
-  api.addEventListener('executing',monitorExecuting);
-  api.addEventListener('b_preview',monitorPreview);
-  api.addEventListener('kj_preview_override',monitorKJPreview);
-  node.__h3MonitorCleanup=()=>{
-    api.removeEventListener('progress',monitorProgress);
-    api.removeEventListener('executing',monitorExecuting);
-    api.removeEventListener('b_preview',monitorPreview);
-    api.removeEventListener('kj_preview_override',monitorKJPreview);
-    if(previewObjectURL)try{URL.revokeObjectURL(previewObjectURL);}catch{}
-    previewObjectURL=null;
-    try{monitorVideo.pause();}catch{}
-    monitorVideo.removeAttribute('src');
-  };
-
+  // H3_DIRECTOR_UI_CLEANUP_V1: BASE is reviewed as the finished output video.
+  // No live preview, preview decoding, progress bar, or preview event listeners.
+  const monitorBegin=()=>{};
+  const monitorEnd=()=>{};
+  node.__h3MonitorCleanup=()=>{};
 
   line(panel);headline(panel,'VIDEO · BASE PASS');
   r=row(panel);
@@ -405,8 +300,9 @@ function mirror(node) {
   },r);
   line(panel);headline(panel,'UPSCALE & OUTPUT');
   r=row(panel);
-  const renderMode=select([['Final','Final — base + upscale'],['Preview base','Preview — base only']]);item(r,'Render mode',renderMode);
   const refine=input('number',1,100,1);item(r,'Upscale steps',refine);
+  const denoise=input('number',0,1,0.01);item(r,'Refine denoise · 2nd pass',denoise);
+  denoise.title='Default 0.20. Higher values allow stronger changes during refinement.';
   const scale=input('number',1,3,0.05);item(r,'Latent 3D multiplier',scale);
   // ADVANCED SETTINGS: expose the existing native widgets, do not replace any of their nodes.
   // Each native widget is serialized by ComfyUI in its original node; this panel is only a mirror.
@@ -414,7 +310,7 @@ function mirror(node) {
   const advanced=$('details',{background:colors.panel,border:`1px solid ${colors.line}`,borderRadius:'7px',padding:'8px 10px'});
   const summary=$('summary',{cursor:'pointer',fontSize:'13px',fontWeight:'bold',padding:'5px 1px'},'ADVANCED SETTINGS · SAMPLERS, SCHEDULERS & UPSCALER');
   advanced.append(summary);
-  const advDescription=$('div',{...S.caption,margin:'7px 0'},'Optional technical choices. These settings are stored inside the Director. UPSCALE denoise remains fixed internally at 0.20.');
+  const advDescription=$('div',{...S.caption,margin:'7px 0'},'Optional technical choices. These settings are stored inside the Director. Refine denoise is adjustable in UPSCALE & OUTPUT (default 0.20).');
   advanced.append(advDescription);
   const advancedRows=row(advanced);
   panel.append(advanced);
@@ -702,13 +598,28 @@ function mirror(node) {
       boxes.append(outer);
     });
   }
-  function active(){return Boolean(chainMeta.awaiting||chainMeta.chaining);}
-  async function queueOnce(){
+  async function releaseModels(reason){
+    if(chainMeta.releasingModels)return;
+    chainMeta.releasingModels=true;
+    warning.textContent='Releasing loaded models and GPU memory…';
+    try{
+      const response=await api.fetchApi('/h3_director/release_models',{method:'POST'});
+      if(!response.ok)throw Error(`HTTP ${response.status}`);
+      warning.textContent=`Models released after ${reason}.`;
+    }catch(e){
+      warning.textContent=`Could not release models automatically: ${e.message}`;
+    }finally{
+      chainMeta.releasingModels=false;
+      refreshStatus();
+    }
+  }
+  function active(){return Boolean(chainMeta.awaiting||chainMeta.chaining||chainMeta.releasingModels);}
+  async function queueOnce({randomizeSeed=true}={}){
     if(chainMeta.awaiting)return false;
     if(!shots[Number(source.clip_index.value)-1]?.trim()){
       warning.textContent=`Segment ${source.clip_index.value} has no prompt.`;return false;
     }
-    if(source.seed_mode.value==='randomize'){
+    if(randomizeSeed && source.seed_mode.value==='randomize'){
       const values=new Uint32Array(2);crypto.getRandomValues(values);
       const next=(BigInt(values[0])<<32n)|BigInt(values[1]);
       // Use JS safe 53-bit precision, matching ComfyUI widget serialization.
@@ -723,13 +634,26 @@ function mirror(node) {
   function completeQueue(ok){
     if(!chainRunOwner||!chainMeta.awaiting)return;
     chainMeta.awaiting=false;monitorEnd(ok);
-    if(!ok){chainMeta.chaining=false;chainRunOwner=false;
-      warning.textContent='Rendering failed or interrupted; Chain stopped.';return;}
-    if(!chainMeta.chaining){chainRunOwner=false;refreshStatus();return;}
-    const next=Number(source.clip_index.value)+1;
-    if(next>shots.length){chainMeta.chaining=false;chainRunOwner=false;refreshStatus();return;}
-    source.clip_index.value=next;expanded=next-1;renderShots();refreshStatus();
-    queueOnce();
+    const acceptedPass=String(source.render_mode.value)==='Upscale accepted base';
+    if(ok && acceptedPass){
+      keep('render_mode','Preview base');syncControls();
+      warning.textContent='BASE accepted and upscaled. Press Approve → next BASE to continue the chain.';
+    }
+    if(!ok){
+      chainMeta.chaining=false;chainRunOwner=false;
+      void releaseModels('an interrupted or failed render');return;
+    }
+    if(chainMeta.chaining){
+      const next=Number(source.clip_index.value)+1;
+      if(next<=shots.length){
+        source.clip_index.value=next;expanded=next-1;renderShots();refreshStatus();
+        queueOnce();return;
+      }
+      chainMeta.chaining=false;chainRunOwner=false;refreshStatus();
+      void releaseModels('the completed chain');return;
+    }
+    chainRunOwner=false;refreshStatus();
+    void releaseModels('the completed render');
   }
   const onSuccess=()=>completeQueue(true);
   const onError=()=>completeQueue(false);
@@ -815,6 +739,9 @@ function mirror(node) {
   async function dispatch(action){
     if(action==='Chain'&&chainMeta.chaining){await nativeAction('Stop');return;}
     if(active()){warning.textContent='A clip is rendering; wait for it to finish.';return;}
+    if((action==='Approve'||action==='Chain') && source.render_mode.value==='Upscale accepted base'){
+      warning.textContent='Accept the current BASE first; then the Director returns to BASE review for the next clip.';return;
+    }
     const {load,save}=readIndices();
     if(save!==load+1){warning.textContent='Continuity clip indices inconsistent.';return;}
     if(action==='Approve'&&save>=shots.length){warning.textContent='Last segment reached.';return;}
@@ -838,6 +765,11 @@ function mirror(node) {
   apply(mp,'megapixels',validNumber(0.05,4));
   apply(base,'base_steps',validNumber(1,100,true));
   apply(refine,'refine_steps',validNumber(1,100,true));
+  denoise.addEventListener('change',()=>{
+    const value=validNumber(0,1)(denoise.value);
+    if(value===null){denoise.value=String(source.refine_denoise.value??0.20);return;}
+    keep('refine_denoise',value);syncControls();
+  });
   apply(scale,'upscale_multiplier',validNumber(1,3));
   seed.addEventListener('change',()=>{
     const val=validNumber(0,Number.MAX_SAFE_INTEGER,true)(seed.value);
@@ -852,10 +784,9 @@ function mirror(node) {
       warning.textContent='RandomNoise seed mode widget is unavailable.';
     else warning.textContent='';
   });
-  apply(renderMode,'render_mode');
   // Numeric/text production fields: Enter commits exactly like leaving the field.
   // Never bubble Enter to ComfyUI canvas shortcuts or trigger a render.
-  for(const field of [project,duration,mp,base,refine,scale,seed]){
+  for(const field of [project,duration,mp,base,refine,denoise,scale,seed]){
     field.addEventListener('keydown',e=>{
       if(e.key!=='Enter')return;
       e.preventDefault();e.stopPropagation();
@@ -886,9 +817,9 @@ function mirror(node) {
     project.value=v.project_key??'';
     // Legacy serialized field is fixed to Chain; the user chooses Run or Chain using buttons.
     if(v.production_mode!=='Chain')keep('production_mode','Chain');
-    renderMode.value=v.render_mode??'Final';
     duration.value=v.duration_s;mp.value=v.megapixels;
     base.value=v.base_steps;refine.value=v.refine_steps;scale.value=v.upscale_multiplier;
+    denoise.value=v.refine_denoise??0.20;
     seed.value=String(getNative(ID.seed,'h3_rng_value',0)??'0');
     seedMode.value=String(getNative(ID.seed,'control_after_generate',1)??'randomize');
     general.value=String(v.general_prompt??'');
@@ -907,7 +838,7 @@ function mirror(node) {
     hideNativeWidgets();
     anchorOutputs(node);
     updateTheme(node,panel);
-    // Defer mirroring until LiteGraph has restored the graph nodes.
+    // Defer mirroring until LiteGraph has restored all original nodes.
     Promise.resolve().then(()=>syncControls());
   };
   // Manual size grip stays accessible even if a ComfyUI frontend build
@@ -964,6 +895,7 @@ function mirror(node) {
   });
   ui.serialize=false;ui.options??={};ui.options.serialize=false;
   panel.classList.add('h3-director-v1-ui');
+  window.setTimeout(()=>window.__h3DirectorStudioV2Enhance?.(node,panel),0);
   hideNativeWidgets();
   node.__h3studio={restore,syncControls};
   // Do not force node.size: respect the saved JSON geometry and manual resizing.
@@ -995,7 +927,8 @@ function mirror(node) {
 }
 app.registerExtension({
   name:'h3.director.studio.v1.integrated',
-  async beforeRegisterNodeDef(nodeType,nodeData){    if(nodeData.name!==TYPE)return;
+  async beforeRegisterNodeDef(nodeType,nodeData){
+    if(nodeData.name!==TYPE)return;
     const origCreated=nodeType.prototype.onNodeCreated;
     const origConfigure=nodeType.prototype.onConfigure;
     const origRemoved=nodeType.prototype.onRemoved;
@@ -1010,3 +943,250 @@ app.registerExtension({
     }
   },
 });
+
+// H3_DIRECTOR_REFINE_DENOISE_V1
+
+// H3_DIRECTOR_BASE_REVIEW_ACCEPT_V3
+
+// H3_DIRECTOR_MODEL_RELEASE_V3
+
+// H3_DIRECTOR_STUDIO_V2_UI_THEME_AUTOHEIGHT
+// Visual layer only. It rearranges the existing Director controls without
+// changing any sampler, Motion Context, latent, audio, queue, or prompt logic.
+(() => {
+  const TYPE='H3DirectorStudioV1';
+  const STYLE_ID='h3-director-studio-v2-theme';
+  const actionColors={
+    generate:'#087c98', keep:'#61419e', approve:'#50368e',
+    chain:'#236f45', reset:'#185f78', clear:'#7c3d4d', utility:'#2b5968'
+  };
+  const text=el=>String(el?.textContent??'').trim();
+  const all=(root,selector)=>Array.from(root.querySelectorAll(selector));
+  const buttonBy=(panel,prefix)=>all(panel,'button').find(b=>text(b).startsWith(prefix));
+  const el=(tag,className='',label='')=>{
+    const out=document.createElement(tag);
+    if(className)out.className=className;
+    if(label)out.textContent=label;
+    return out;
+  };
+  const wait=fn=>{requestAnimationFrame(()=>requestAnimationFrame(fn));};
+
+  function addStyles(){
+    if(document.getElementById(STYLE_ID))return;
+    const style=document.createElement('style'); style.id=STYLE_ID;
+    style.textContent=`
+      .h3-director-v1-ui.h3-v2-ui{
+        --h3v2-amber:#d18325; --h3v2-amber-soft:rgba(209,131,37,.52);
+        --h3v2-card:#22363a; --h3v2-field:#16272b; --h3v2-text:#edf4f1;
+        --h3v2-sub:#b6c6bf; overflow-y:hidden !important; gap:9px !important;
+      }
+      .h3-director-v1-ui.h3-v2-ui input:not([type="checkbox"]),
+      .h3-director-v1-ui.h3-v2-ui select,
+      .h3-director-v1-ui.h3-v2-ui textarea{
+        border:1px solid var(--h3v2-amber-soft) !important;
+        background:var(--h3v2-field) !important; color:var(--h3v2-text) !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+      }
+      .h3-director-v1-ui.h3-v2-ui input:not([type="checkbox"]):focus,
+      .h3-director-v1-ui.h3-v2-ui select:focus,
+      .h3-director-v1-ui.h3-v2-ui textarea:focus{
+        outline:none !important; border-color:var(--h3v2-amber) !important;
+        box-shadow:0 0 0 2px rgba(209,131,37,.18) !important;
+      }
+      .h3-director-v1-ui.h3-v2-ui details,
+      .h3-director-v1-ui.h3-v2-ui section{
+        border-color:var(--h3v2-amber-soft) !important;
+      }
+      .h3-director-v1-ui.h3-v2-ui summary{color:var(--h3v2-text) !important;}
+      .h3v2-group{
+        display:flex; flex-direction:column; gap:9px; box-sizing:border-box;
+        border:2px solid var(--h3v2-amber); border-radius:10px; padding:10px 12px;
+        background:rgba(12,30,32,.28); box-shadow:0 0 11px rgba(209,131,37,.10);
+      }
+      .h3v2-group-title{
+        color:var(--h3v2-text); font-weight:800; font-size:14px; letter-spacing:.25px;
+        display:flex; align-items:center; gap:9px;
+      }
+      .h3v2-group-title::before{
+        content:''; display:block; width:6px; height:22px; border-radius:4px;
+        background:var(--h3v2-amber); box-shadow:0 0 7px rgba(209,131,37,.34);
+      }
+      .h3v2-actions{display:flex; flex-wrap:wrap; align-items:end; gap:9px;}
+      .h3v2-action{
+        min-height:38px !important; padding:7px 12px !important; border-radius:6px !important;
+        border:1px solid rgba(255,255,255,.20) !important; color:#f7fbfa !important;
+        font-weight:700 !important; letter-spacing:.05px; flex:1 1 180px;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.24), inset 0 -1px 0 rgba(0,0,0,.28),
+                   0 2px 0 rgba(0,0,0,.45), 0 4px 8px rgba(0,0,0,.18) !important;
+        transition:transform .08s ease, box-shadow .08s ease, filter .12s ease;
+      }
+      .h3v2-action:hover{filter:brightness(1.08);}
+      .h3v2-action:active{
+        transform:translateY(2px); box-shadow:inset 0 2px 4px rgba(0,0,0,.30),
+                   0 1px 0 rgba(0,0,0,.38) !important;
+      }
+      .h3v2-mode{min-width:135px; flex:0 0 135px; display:flex; flex-direction:column; gap:5px;}
+      .h3v2-mode-label{color:var(--h3v2-text); font-size:12px; font-weight:800; letter-spacing:.25px;}
+      .h3v2-switch{
+        appearance:none; width:58px; height:27px; margin:0; cursor:pointer; border-radius:18px;
+        position:relative; background:#3a2b18; border:1px solid var(--h3v2-amber) !important;
+        box-shadow:inset 0 1px 3px rgba(0,0,0,.45),0 0 5px rgba(209,131,37,.18);
+      }
+      .h3v2-switch::after{
+        content:''; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%;
+        background:#f1f4ef; box-shadow:0 1px 2px rgba(0,0,0,.55); transition:left .14s ease;
+      }
+      .h3v2-switch:checked{background:var(--h3v2-amber);}
+      .h3v2-switch:checked::after{left:33px;}
+      .h3v2-status{
+        border:1px solid rgba(83,198,125,.55); border-radius:6px; padding:4px 8px;
+        background:rgba(28,95,52,.24); color:#a7e6b8 !important; width:max-content;
+      }
+      .h3v2-set-clip{background:#2b5968 !important; flex:0 0 auto !important; min-height:32px !important;}
+      .h3-director-v1-ui.h3-v2-ui > div:last-child{border-color:var(--h3v2-amber-soft) !important;}
+    `;
+    document.head.append(style);
+  }
+
+  function scheduleApply(node,attempt=0){
+    wait(()=>{
+      const widget=node.widgets?.find(w=>w.name==='h3_full_director_panel');
+      const panel=widget?.element ?? widget?.inputEl;
+      if(panel && panel.classList?.contains('h3-director-v1-ui'))enhance(node,panel);
+      else if(attempt<12)setTimeout(()=>scheduleApply(node,attempt+1),60);
+    });
+  }
+
+  function enhance(node,panel){
+    if(panel.__h3DirectorStudioV2)return;
+    const full=buttonBy(panel,'▶ Generate BASE + Upscale');
+    const base=buttonBy(panel,'▶ Generate BASE');
+    const keep=buttonBy(panel,'✓ Accept BASE');
+    const approve=buttonBy(panel,'✓ Approve');
+    const originalChain=buttonBy(panel,'▶▶ Chain');
+    const reset=buttonBy(panel,'↺ Reset indices');
+    const clear=buttonBy(panel,'Clear latents');
+    const clipSelect=all(panel,'select').find(s=>all(s,'option').some(o=>/^Clip\\s+\\d+$/i.test(text(o))));
+    if(!full||!base||!keep||!approve||!originalChain||!reset||!clear||!clipSelect)return;
+    panel.__h3DirectorStudioV2=true; addStyles(); panel.classList.add('h3-v2-ui');
+
+    const oldActions=full.parentElement;
+    const clipRow=clipSelect.parentElement?.parentElement;
+    if(!oldActions||!clipRow)return;
+    const anchor=oldActions;
+    const manual=el('section','h3v2-group');
+    const chainGroup=el('section','h3v2-group');
+    manual.append(el('div','h3v2-group-title','MANUAL CLIP WORKFLOW'));
+    chainGroup.append(el('div','h3v2-group-title','AUTOMATED SEQUENCE'));
+    anchor.before(manual); manual.after(chainGroup);
+    manual.append(clipRow);
+    const setClip=buttonBy(clipRow,'Set clip');
+    if(setClip){setClip.textContent='Set active clip';setClip.classList.add('h3v2-action','h3v2-set-clip');}
+
+    const manualActions=el('div','h3v2-actions');
+    const mode=el('div','h3v2-mode');
+    const modeLabel=el('div','h3v2-mode-label');
+    const toggle=el('input','h3v2-switch'); toggle.type='checkbox'; toggle.setAttribute('aria-label','Generate BASE or final pass');
+    const renderMode=node.widgets?.find(w=>w.name==='render_mode');
+    toggle.checked=String(renderMode?.value??'Preview base')==='Final';
+    const clipNumber=()=>Number(clipSelect.value)||1;
+    const updateActionText=()=>{
+      modeLabel.textContent=toggle.checked?'GENERATE FINAL':'GENERATE BASE';
+      full.textContent=`▶ GENERATE CLIP ${clipNumber()}`;
+    };
+    updateActionText();
+    toggle.addEventListener('change',()=>{
+      if(renderMode){
+        renderMode.value=toggle.checked?'Final':'Preview base';
+        try{renderMode.callback?.(renderMode.value);}catch{}
+      }
+      updateActionText();
+    });
+    clipSelect.addEventListener('change',updateActionText);
+    // Capture before the original button listener. BASE mode forwards to the
+    // existing, proven BASE button; Final keeps the original exact handler.
+    full.addEventListener('click',event=>{
+      if(toggle.checked)return;
+      event.preventDefault(); event.stopImmediatePropagation(); base.click();
+    },true);
+    mode.append(modeLabel,toggle);
+    manualActions.append(mode,full,keep,approve); manual.append(manualActions);
+    base.style.display='none';
+    full.classList.add('h3v2-action'); full.style.background=actionColors.generate;
+    keep.textContent='✓ KEEP BASE → UPSCALE';keep.classList.add('h3v2-action');keep.style.background=actionColors.keep;
+    approve.textContent='✓ APPROVE FINAL → NEXT CLIP';approve.classList.add('h3v2-action');approve.style.background=actionColors.approve;
+
+    const chainActions=el('div','h3v2-actions');
+    const chain=el('button','h3v2-action','▶▶ RUN CHAIN'); chain.type='button';chain.style.background=actionColors.chain;
+    chain.addEventListener('click',event=>{event.preventDefault();originalChain.click();setTimeout(refreshChain,40);});
+    originalChain.style.display='none';
+    reset.textContent='↻ RESET CHAIN POSITION';reset.classList.add('h3v2-action');reset.style.background=actionColors.reset;
+    clear.textContent='CLEAR TEMPORARY LATENTS';clear.classList.add('h3v2-action');clear.style.background=actionColors.clear;
+    chainActions.append(chain,reset,clear);chainGroup.append(chainActions);
+    oldActions.remove();
+
+    const status=all(panel,'div').find(d=>text(d).startsWith('Continuity · Load'));
+    if(status)status.classList.add('h3v2-status');
+    function refreshChain(){
+      const running=text(originalChain).startsWith('■');
+      chain.textContent=running?'■ STOP AFTER CURRENT CLIP':`▶▶ RUN CHAIN FROM CLIP ${clipNumber()}`;
+      updateActionText();
+    }
+    const titleTimer=setInterval(refreshChain,450); refreshChain();
+
+    // Prompt sections resize the actual LiteGraph node instead of making the
+    // Director internally scroll. The saved/manual collapsed size is restored
+    // once every prompt area is closed again.
+    let collapsedHeight=Math.max(440,Number(node.size?.[1])||440);
+    let autoBaseHeight=null,fitQueued=false;
+    const promptOpen=()=>{
+      const global=all(panel,'details').find(d=>text(d.querySelector('summary')).includes('GLOBAL PROMPT'));
+      const openSegment=all(panel,'button').some(b=>text(b).startsWith('▼ SEGMENT'));
+      return Boolean(global?.open||openSegment);
+    };
+    const fit=()=>{
+      fitQueued=false;
+      if(!node?.size)return;
+      if(!promptOpen()){
+        if(autoBaseHeight!==null){node.setSize?.([node.size[0],autoBaseHeight]);autoBaseHeight=null;}
+        return;
+      }
+      if(autoBaseHeight===null)autoBaseHeight=Math.max(440,Number(node.size[1])||collapsedHeight);
+      const required=Math.ceil(panel.scrollHeight+34);
+      const target=Math.max(autoBaseHeight,required);
+      if(target>Number(node.size[1])+2)node.setSize?.([node.size[0],target]);
+    };
+    const queueFit=()=>{if(fitQueued)return;fitQueued=true;requestAnimationFrame(fit);};
+    const observer=new MutationObserver(queueFit);
+    observer.observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
+    all(panel,'details').forEach(d=>d.addEventListener('toggle',queueFit));
+    panel.addEventListener('input',queueFit);panel.addEventListener('pointerup',queueFit);
+    const oldResize=node.onResize;
+    node.onResize=function(){
+      const out=oldResize?.apply(this,arguments);
+      if(!promptOpen()&&!autoBaseHeight)collapsedHeight=Math.max(440,Number(this.size?.[1])||collapsedHeight);
+      return out;
+    };
+    const oldCleanup=node.__h3V2Cleanup;
+    node.__h3V2Cleanup=()=>{clearInterval(titleTimer);observer.disconnect();oldCleanup?.();};
+    setTimeout(queueFit,40);setTimeout(queueFit,180);
+  }
+
+  window.__h3DirectorStudioV2Enhance=enhance;
+
+  app.registerExtension({
+    name:'h3.director.studio.v2.ui',
+    beforeRegisterNodeDef(nodeType,nodeData){
+      if(nodeData.name!==TYPE)return;
+      const previousCreated=nodeType.prototype.onNodeCreated;
+      const previousRemoved=nodeType.prototype.onRemoved;
+      nodeType.prototype.onNodeCreated=function(){const out=previousCreated?.apply(this,arguments);scheduleApply(this);return out;};
+      nodeType.prototype.onRemoved=function(){this.__h3V2Cleanup?.();return previousRemoved?.apply(this,arguments);};
+    },
+    loadedGraphNode(node){
+      if(node.comfyClass===TYPE||node.type===TYPE)scheduleApply(node);
+    },
+  });
+})();
+// H3_DIRECTOR_STUDIO_V2_UI_DIRECT_HOOK_V1
+// H3_DIRECTOR_STUDIO_V2_UI_DIRECT_HOOK_V2

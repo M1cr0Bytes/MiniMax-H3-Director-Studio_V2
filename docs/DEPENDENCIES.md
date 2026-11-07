@@ -1,44 +1,37 @@
-# Dependencies — H3 Director Studio V1
+# Dependencies
 
-This list is based on **the published `__init__.py` backend and the 11-node public workflow**. Installing the repository alone does not install its upstream ComfyUI nodes. Use current compatible ComfyUI (including the core nodes listed below).
+## Director runtime
 
-## Required custom-node packages
+These components are required for the Director to execute its native H3 BASE, continuity and 3D latent-upscale paths.
 
-| Package | Nodes used by the Director / example workflow | Upstream |
-|---|---|---|
-| **Deno Custom Nodes — Deno2026** | `DenoMiniMaxH3ReferenceToVideo` (internal BASE/UPSCALE); `DenoMiniMaxH3ReferenceImageLoader` (external reference loader) | https://github.com/Deno2026/comfyui-deno-custom-nodes |
-| **H3 Motion Context — NikoDemon80** | `MiniMaxH3MotionContext`, `MiniMaxH3MotionContextLoadLatent`, `MiniMaxH3MotionContextSaveLatent`, `MiniMaxH3MotionContextTrim` | https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context |
-| **KJNodes — Kijai** | `ModelPreviewOverrideKJ` (internal); `kj_preview_override` frontend event supplies animated live previews | https://github.com/kijai/ComfyUI-KJNodes |
-| **H3 latent upscaler implementation** | `MinimaxH3LatentUpscaler3D` (internal in Final/UPSCALE) | Upstream: https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler ; variant: https://github.com/xmarre/Comfyui_Minimax_h3_latent_Upscaler-Plus |
-| **OBVPM Timeline — chanon** | `H3ContextWindows` (internal in Final/UPSCALE) | https://github.com/chanon/comfyui-obvpm-timeline |
-| **rgthree-comfy** | `Lora Loader Stack (rgthree)` (two external nodes: BASE and UPSCALE) | https://github.com/rgthree/rgthree-comfy |
-| **VideoHelperSuite** | `VHS_VideoCombine` (video+audio export) | https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite |
-| **ComfyUI-Pixaroma — Pixaroma** | `PixaromaRunTimer` (disconnected timer in public workflow) | https://gitlab.com/pixaroma/comfyui-pixaroma |
+| Component | Purpose |
+| --- | --- |
+| Current ComfyUI with native MiniMax H3 support | Core H3 model, conditioning, sampling and VAE nodes. |
+| [ComfyUI-H3-Motion-Context](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) | Segment continuity for motion and audio. |
+| A compatible `MinimaxH3LatentUpscaler3D` provider | The 3D latent upscale node used by the Director. |
+| [ComfyUI-OBVPM-Timeline](https://github.com/chanon/comfyui-obvpm-timeline) | `H3ContextWindows` used in the Upscale branch. |
+| MiniMax H3 BASE model, CLIP/text encoder, video VAE and audio VAE | Model assets; download separately. |
 
-**Important distinctions:** Pixaroma's timer is required to open the example workflow without a missing-node alert, but not to generate video. VideoHelperSuite and rgthree are needed to load the example workflow **as supplied**; they are not internal dependencies of the Director's Python class. The H3 latent upscaler is used when the Final/UPSCALE branch executes.
+## Included workflow extras
 
-## ComfyUI built-in nodes
+The supplied workflow opens unchanged when these packages are installed. They are not bundled with H3 Director Studio.
 
-These nodes are supplied by **ComfyUI core**, not separate custom-node packs:
+| Component | Used for | Required to open unchanged? |
+| --- | --- | --- |
+| [Deno custom nodes](https://github.com/Deno2026/comfyui-deno-custom-nodes) | H3 reference-image/audio loader. | Yes |
+| H3 Creative Writer | Optional prompt-writing helper. | Yes; remove it if not used. |
+| [rgthree-comfy](https://github.com/rgthree/rgthree-comfy) | BASE and Upscale LoRA stacks. | Yes |
+| [ComfyUI-Spectrum-MiniMax-H3](https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3) | Spectrum acceleration in BASE only. | Yes |
+| [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) | Optional BASE preview. | Yes; remove or bypass if unused. |
+| [ComfyUI-Pixaroma](https://gitlab.com/pixaroma/comfyui-pixaroma) | Run timer / presentation utility. | Yes; remove if unused. |
+| [VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite) | Final MP4 muxing and output. | Yes |
 
-- `ResolutionSelector`, `ComfyMathExpression` (internal size and timing expressions)
-- `LTXVSeparateAVLatent`, `LTXVConcatAVLatent` (internal video/audio latent separation and merging)
-- `ModelAttentionBackend` (external workflow: Comfy Kitchen attention selected for the UPSCALE model; can fall back when unsupported)
-- `CLIPLoader`, `VAELoader`, `UNETLoader`, `BasicGuider`, `RandomNoise`, `KSamplerSelect`, `BasicScheduler`, `SamplerCustomAdvanced`, `VAEDecode`, `VAEDecodeAudio` and ComfyUI's `GraphBuilder` interface.
+## Models and LoRAs
 
-Official references:
-- https://github.com/Comfy-Org/ComfyUI
-- https://github.com/Comfy-Org/ComfyUI/blob/master/comfy_extras/nodes_lt.py
-- https://github.com/Comfy-Org/docs/blob/main/built-in-nodes/ModelAttentionBackend.mdx
+The workflow intentionally stores model and LoRA selectors rather than model files. Download the assets independently, place them in the folders expected by your ComfyUI setup, then choose equivalent compatible filenames if yours differ.
 
-**Versions:** exact minimum-compatible versions of ComfyUI and third-party packages have **not been pinned**. Nodes being present upstream does not guarantee compatibility with older installations or other forks. Install updates from their original authors and consult the startup log for missing node registrations.
+The supplied Spectrum branch is deliberately restricted to:
 
-## Model weights (not bundled)
+`BASE model → BASE LoRAs → Spectrum → Director`
 
-The user's ComfyUI installation must separately supply a compatible MiniMax H3 diffusion model, text encoder, video and audio VAEs, a suitable latent-upscaler checkpoint for Final/UPSCALE, and the LoRAs selected in the workflow. These assets retain their respective creators' licenses.
-
-- Official model distribution: https://huggingface.co/MiniMaxAI/MiniMax-H3
-- ComfyUI model packaging: https://huggingface.co/Comfy-Org/MiniMax-H3
-- Model recommendations and attribution: [README](../README.md#recommended-models--photorealism-oriented-configuration) and [CREDITS](CREDITS.md)
-
-Third-party weights, LoRAs and their licenses are independent of the MIT license for the Director code. Verify upstream terms, especially before commercial use.
+Keep Spectrum out of the 3D latent-upscale branch. Use it with non-Turbo BASE sampling at about 25 steps; it is not recommended for Turbo LoRAs or short Turbo schedules.

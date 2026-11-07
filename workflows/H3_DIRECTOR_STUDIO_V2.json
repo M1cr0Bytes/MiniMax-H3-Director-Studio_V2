@@ -1,0 +1,289 @@
+{
+  "65": {
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "MINIMAX H3 — VIDEO VAE"
+    }
+  },
+  "66": {
+    "inputs": {
+      "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "MINIMAX H3 — AUDIO VAE"
+    }
+  },
+  "69": {
+    "inputs": {
+      "unet_name": "10Eros_Max_h3_TURBO-hybrid_beta5_int8.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "MINIMAX H3 — MODEL LOADER -BASE"
+    }
+  },
+  "118": {
+    "inputs": {
+      "lora_01": "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+      "strength_01": 0,
+      "lora_02": "h3-realism-people-t2v-i2v-r2v.safetensors",
+      "strength_02": 0.8,
+      "lora_03": "KNP_000003000.safetensors",
+      "strength_03": 0,
+      "lora_04": "MysticXXX_MMH3-V4-ref2va.safetensors",
+      "strength_04": 0,
+      "model": [
+        "69",
+        0
+      ],
+      "clip": [
+        "205",
+        0
+      ]
+    },
+    "class_type": "Lora Loader Stack (rgthree)",
+    "_meta": {
+      "title": "BASE — TURBO & ADDITIONAL LoRAs"
+    }
+  },
+  "145": {
+    "inputs": {
+      "image_paths": "",
+      "disabled_image_paths": "",
+      "audio_sources": "[]"
+    },
+    "class_type": "DenoMiniMaxH3ReferenceImageLoader",
+    "_meta": {
+      "title": "H3 REFERENCES — IMAGE LOADER",
+      "cnr_id": "deno-custom-nodes",
+      "ver": "0.7.74"
+    }
+  },
+  "176": {
+    "inputs": {
+      "general_prompt": "",
+      "segments_text": "",
+      "project_key": "H3_Director_Demo",
+      "production_mode": "Chain",
+      "render_mode": "Preview base",
+      "duration_s": 10,
+      "ratio": "9:16 (Portrait Widescreen)",
+      "megapixels": 0.2,
+      "base_steps": 8,
+      "refine_steps": 4,
+      "upscale_multiplier": 2,
+      "clip_index": 1,
+      "h3_rng_value": 0,
+      "seed_mode": "randomize",
+      "base_sampler": "res_multistep",
+      "base_scheduler": "simple",
+      "upscale_sampler": "res_multistep",
+      "upscale_scheduler": "simple",
+      "upscaler_model": "minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors",
+      "refine_denoise": 0.35,
+      "base_model": [
+        "216",
+        0
+      ],
+      "base_clip": [
+        "118",
+        1
+      ],
+      "upscale_model": [
+        "203",
+        0
+      ],
+      "upscale_clip": [
+        "179",
+        1
+      ],
+      "video_vae": [
+        "65",
+        0
+      ],
+      "audio_vae": [
+        "66",
+        0
+      ],
+      "ref_images": [
+        "145",
+        0
+      ]
+    },
+    "class_type": "H3DirectorStudioV1",
+    "_meta": {
+      "title": "H3 DIRECTOR STUDIO V2"
+    }
+  },
+  "179": {
+    "inputs": {
+      "lora_01": "minimax_h3_DMAD_4step_full_lora_avg_rank_39_bf16.safetensors",
+      "strength_01": 0.5,
+      "lora_02": "Restore_Enhance_Improve_rank16_v1_H3-lora.safetensors",
+      "strength_02": 0.6,
+      "lora_03": "loracinematografico08.safetensors",
+      "strength_03": 0.6,
+      "lora_04": "MysticXXX_MMH3-V4-ref2va.safetensors",
+      "strength_04": 0,
+      "model": [
+        "202",
+        0
+      ],
+      "clip": [
+        "205",
+        0
+      ]
+    },
+    "class_type": "Lora Loader Stack (rgthree)",
+    "_meta": {
+      "title": "UPSCALE — TURBO & ENHANCEMENT LoRAs"
+    }
+  },
+  "189": {
+    "inputs": {},
+    "class_type": "PixaromaRunTimer",
+    "_meta": {
+      "title": "RENDER TIMER"
+    }
+  },
+  "191": {
+    "inputs": {
+      "frame_rate": 24,
+      "loop_count": 0,
+      "filename_prefix": "H3_Director_Demo/H3_clip",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 19,
+      "save_metadata": 19,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "176",
+        1
+      ],
+      "audio": [
+        "176",
+        2
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "H3 VIDEO OUTPUT — BASE AUDIO PRESERVED (24 FPS)"
+    }
+  },
+  "193": {
+    "inputs": {
+      "attention": "comfy kitchen attention",
+      "model": [
+        "118",
+        0
+      ]
+    },
+    "class_type": "ModelAttentionBackend",
+    "_meta": {
+      "title": "BASE ONLY — ATTENTION BACKEND"
+    }
+  },
+  "202": {
+    "inputs": {
+      "unet_name": "10Eros_Max_h3_fl2va_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "MINIMAX H3 — MODEL LOADER"
+    }
+  },
+  "203": {
+    "inputs": {
+      "attention": "comfy kitchen attention",
+      "model": [
+        "179",
+        0
+      ]
+    },
+    "class_type": "ModelAttentionBackend",
+    "_meta": {
+      "title": "UPSCALE ONLY — ATTENTION BACKEND - UPSCALE"
+    }
+  },
+  "205": {
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "MINIMAX H3 — TEXT ENCODER"
+    }
+  },
+  "214": {
+    "inputs": {
+      "enabled": true,
+      "blend_weight": 0.5,
+      "degree": 1,
+      "ridge_lambda": 0.1,
+      "window_size": 2,
+      "flex_window": 0.75,
+      "warmup_steps": 1,
+      "tail_actual_steps": 1,
+      "max_history": 8,
+      "debug": false,
+      "history_storage": "system_ram",
+      "bootstrap_first_forecast": true,
+      "anchor_residual_feedback": false,
+      "selective_rollback_correction": false,
+      "offline_smoothing_replay": true,
+      "audio_blend_weight": 0,
+      "offline_archive_storage": "system_ram",
+      "model_aware_mode": "off",
+      "model_aware_risk_threshold": 0.65,
+      "model_aware_trust_shrinkage": false,
+      "model_aware_replay_generic_correction": false,
+      "generic_correction_mode": "coordinate_rls",
+      "generic_correction_limiter": "hard_clip",
+      "generic_correction_limit": 0.4,
+      "generic_correction_attenuation": "no_attenuation",
+      "sa_pece_forecast_policy": "balanced",
+      "model": [
+        "118",
+        0
+      ]
+    },
+    "class_type": "SpectrumApplyMiniMaxH3",
+    "_meta": {
+      "title": "SPECTRUM ONLY BASE 25 STEPS"
+    }
+  },
+  "216": {
+    "inputs": {
+      "max_resolution": 0,
+      "jpeg_quality": 80,
+      "suppress_default_preview": true,
+      "preview_frames": 48,
+      "preview_fps": 24,
+      "tiny_vae": "taeh3.safetensors",
+      "model": [
+        "214",
+        0
+      ],
+      "vae": [
+        "65",
+        0
+      ]
+    },
+    "class_type": "ModelPreviewOverrideKJ",
+    "_meta": {
+      "title": "PREVIEW BASE",
+      "cnr_id": "comfyui-kjnodes",
+      "ver": "996b010ae4613ae0743121ace5975830dcf8e6af"
+    }
+  }
+}

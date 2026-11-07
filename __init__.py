@@ -1,7 +1,4 @@
-"""H3 Director V1 integrated backend: expands hidden ComfyUI runtime nodes.
-
-Integrated ComfyUI node for MiniMax H3 single-clip and multi-segment generation.
-"""
+"""H3 Director Studio V2 backend: expands native ComfyUI runtime nodes."""
 import re
 import random
 import logging
@@ -15,15 +12,15 @@ LOG = logging.getLogger('h3_studio_v1')
 
 def parse_segments(raw):
     if not isinstance(raw, str) or not raw.strip():
-        raise ValueError('H3 Director V1: No segment prompts.')
+        raise ValueError('H3 Director Studio: No segment prompts.')
     matches = list(HEADER.finditer(raw))
     if not matches or raw[:matches[0].start()].strip():
-        raise ValueError('H3 Director V1: The first line must be [SEGMENT 1].')
+        raise ValueError('H3 Director Studio: The first line must be [SEGMENT 1].')
     result = []
     for i, match in enumerate(matches):
         number = int(match.group(1))
         if number != i + 1:
-            raise ValueError(f'H3 Director V1: Expected [SEGMENT {i+1}], got [SEGMENT {number}].')
+            raise ValueError(f'H3 Director Studio: Expected [SEGMENT {i+1}], got [SEGMENT {number}].')
         end = matches[i+1].start() if i + 1 < len(matches) else len(raw)
         result.append(raw[match.end():end].strip())
     return result
@@ -32,19 +29,19 @@ def parse_segments(raw):
 def safe_project(value):
     segments = str(value).strip().replace('\\', '/')
     if not segments or segments.startswith('/') or segments.startswith('.') or '..' in segments:
-        raise ValueError('H3 Director V1: Invalid project folder name.')
+        raise ValueError('H3 Director Studio: Invalid project folder name.')
     if not re.fullmatch(r'[a-zA-Z0-9_/-]{1,120}', segments):
-        raise ValueError('H3 Director V1: Project folder accepts letters, digits, underscore, hyphen and / only.')
+        raise ValueError('H3 Director Studio: Project folder accepts letters, digits, underscore, hyphen and / only.')
     return segments
 
 
 class H3IntegratedVideoWriter:
-    """Encode video and audio while saving the base continuity latent first."""
+    """Preserve original PixaromaSaveMp4 encoder and force base-continuity save first."""
     @classmethod
     def INPUT_TYPES(cls):
         return {'required': {
             'frames': ('IMAGE',), 'audio': ('AUDIO',), 'saved_base_latent': ('STRING',),
-            'filename_prefix': ('STRING', {'default': 'H3_Studio_V1'}),
+            'filename_prefix': ('STRING', {'default': 'H3_Director'}),
             'save_mode': (['save', 'preview'], {'default': 'save'}),
         }, 'hidden': {'prompt': 'PROMPT', 'extra_pnginfo': 'EXTRA_PNGINFO'}}
 
@@ -71,9 +68,9 @@ class H3DirectorStudioV1:
                 'video_vae': ('VAE',), 'audio_vae': ('VAE',),
                 'general_prompt': ('STRING', {'multiline': True, 'dynamicPrompts': False, 'default': ''}),
                 'segments_text': ('STRING', {'multiline': True, 'dynamicPrompts': False, 'default': DEFAULT_SEGMENTS}),
-                'project_key': ('STRING', {'default': 'h3_director_v1_project'}),
+                'project_key': ('STRING', {'default': 'h3_director_project'}),
                 'production_mode': (['Chain', 'Single'], {'default': 'Chain'}),
-                'render_mode': (['Final', 'Preview base'], {'default': 'Final'}),
+                'render_mode': (['Final', 'Preview base', 'Upscale accepted base'], {'default': 'Preview base'}),
                 'duration_s': ('FLOAT', {'default': 13.0, 'min': 0.5, 'max': 180.0, 'step': 0.5}),
                 'ratio': (['1:1 (Square)', '2:3 (Portrait Photo)', '3:2 (Photo)',
                            '3:4 (Portrait Standard)', '4:3 (Standard)', '9:16 (Portrait Widescreen)',
@@ -92,6 +89,7 @@ class H3DirectorStudioV1:
                 'upscaler_model': ('STRING', {'default': 'minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors'}),
             },
             'optional': {
+                'refine_denoise': ('FLOAT', {'default': 0.20, 'min': 0.0, 'max': 1.0, 'step': 0.01}),
                 'ref_images': ('DENO_MINIMAX_H3_REFERENCE_IMAGES',),
                 'ref_video_0': ('IMAGE',),
                 'ref_video_audio_0': ('AUDIO',),
@@ -105,7 +103,7 @@ class H3DirectorStudioV1:
     FUNCTION = 'run'
     OUTPUT_NODE = True
     CATEGORY = 'MiniMax H3/Director'
-    DESCRIPTION = 'H3 Director Studio V1; BASE + UPSCALE + continuity dynamically executed inside this single node.'
+    DESCRIPTION = 'H3 Director Studio V2; BASE + UPSCALE + continuity dynamically executed inside this single node.'
 
     @classmethod
     def IS_CHANGED(cls, **kwargs):
@@ -116,17 +114,21 @@ class H3DirectorStudioV1:
             duration_s, ratio, megapixels, base_steps, refine_steps, upscale_multiplier,
             clip_index, h3_rng_value, seed_mode, base_sampler, base_scheduler,
             upscale_sampler, upscale_scheduler, upscaler_model,
-            ref_images=None, ref_video_0=None, ref_video_audio_0=None, ref_audio_0=None, unique_id=None):
+            ref_images=None, ref_video_0=None, ref_video_audio_0=None, ref_audio_0=None, unique_id=None, refine_denoise=0.20):
+        import math
+        refine_denoise = float(refine_denoise)
+        if not math.isfinite(refine_denoise) or not 0.0 <= refine_denoise <= 1.0:
+            raise ValueError('Refine denoise debe estar entre 0 y 1.')
         shots = parse_segments(segments_text)
         project = safe_project(project_key)
         index = int(clip_index)
         if index < 1 or index > len(shots):
-            raise ValueError(f'H3 Director V1: Clip {index} is outside 1–{len(shots)} segment(s).')
+            raise ValueError(f'H3 Director Studio: Clip {index} is outside 1–{len(shots)} segment(s).')
         if not shots[index - 1]:
-            raise ValueError(f'H3 Director V1: Segment {index} has no prompt.')
+            raise ValueError(f'H3 Director Studio: Segment {index} has no prompt.')
         prompt_text = (str(general_prompt).strip() + '\n\n' + shots[index - 1]).strip()
         if not prompt_text:
-            raise ValueError('H3 Director V1: Empty prompt.')
+            raise ValueError('H3 Director Studio: Empty prompt.')
         g = GraphBuilder()
         def add(name, **kwargs):
             return g.node(name, **kwargs)
@@ -148,34 +150,42 @@ class H3DirectorStudioV1:
                      conditioning=base_ref.out(0), vae=video_vae, latent=base_ref.out(1),
                      context_length=22, audio_context_length=24, context_latent=context_load.out(0),
                      audio_vae=audio_vae)
-        # Attach KJ model preview support to the BASE sampler.
-        model_for_preview = add('ModelPreviewOverrideKJ', model=base_model, vae=video_vae,
-                                max_resolution=1024, jpeg_quality=80,
-                                suppress_default_preview=True, preview_frames=99,
-                                preview_fps=12, tiny_vae='taeh3.safetensors')
-        guider = add('BasicGuider', model=model_for_preview.out(0), conditioning=motion.out(0))
-        base_noise = add('RandomNoise', noise_seed=int(h3_rng_value))
-        base_sampler_node = add('KSamplerSelect', sampler_name=base_sampler)
-        base_sigmas = add('BasicScheduler', model=base_model,
-                          scheduler=base_scheduler, steps=int(base_steps), denoise=1.0)
-        base_output = add('SamplerCustomAdvanced',
-                          noise=base_noise.out(0), guider=guider.out(0),
-                          sampler=base_sampler_node.out(0), sigmas=base_sigmas.out(0),
-                          latent_image=base_ref.out(1))
-        save_base = add('MiniMaxH3MotionContextSaveLatent',
-                        latent=base_output.out(1), filename_prefix=f'{project}/clip', clip_index=index)
+        # H3_DIRECTOR_BASE_REVIEW_ACCEPT_V3
+        # KJ live preview is intentionally removed. Review the finished BASE clip instead.
         mode_preview = render_mode == 'Preview base'
-        if mode_preview:
-            final_latent = base_output.out(1)
+        mode_accepted = render_mode == 'Upscale accepted base'
+        if mode_accepted:
+            # Exact BASE saved by the review pass. This Director-owned loader
+            # returns the standard H3 AV latent format without changing Motion Context.
+            accepted_base = add('H3DirectorAcceptedBaseLoad',
+                                project_key=project, clip_index=index)
+            base_latent = accepted_base.out(0)
+            saved_continuity = f'{project}/clip_{index:05d}.safetensors'
         else:
-            av_parts = add('LTXVSeparateAVLatent', av_latent=base_output.out(1))
+            guider = add('BasicGuider', model=base_model, conditioning=motion.out(0))
+            base_noise = add('RandomNoise', noise_seed=int(h3_rng_value))
+            base_sampler_node = add('KSamplerSelect', sampler_name=base_sampler)
+            base_sigmas = add('BasicScheduler', model=base_model,
+                              scheduler=base_scheduler, steps=int(base_steps), denoise=1.0)
+            base_output = add('SamplerCustomAdvanced',
+                              noise=base_noise.out(0), guider=guider.out(0),
+                              sampler=base_sampler_node.out(0), sigmas=base_sigmas.out(0),
+                              latent_image=base_ref.out(1))
+            save_base = add('H3DirectorSaveContinuity',
+                            latent=base_output.out(1), filename_prefix=f'{project}/clip', clip_index=index)
+            base_ready = add('H3DirectorLatentAfterSave',
+                             latent=base_output.out(1), saved_path=save_base.out(0))
+            base_latent = base_ready.out(0)
+            saved_continuity = save_base.out(0)
+
+        if mode_preview:
+            final_latent = base_latent
+        else:
+            av_parts = add('LTXVSeparateAVLatent', av_latent=base_latent)
             latent3d = add('MinimaxH3LatentUpscaler3D',
                            latent=av_parts.out(0), model_name=upscaler_model,
                            mode='scale by multiplier', **{'mode.scale': float(upscale_multiplier)},
-                           # Support both LBH-123-AI and xmarre Plus upscaler signatures.
-                           align=32, keep_proportion=True,
-                           enable_temporal_chunking=True, force_unload=True,
-                           offload_after_upscale=True,
+                           align=32, enable_temporal_chunking=True, force_unload=True,
                            device='cuda', precision='fp16')
             joint = add('LTXVConcatAVLatent', video_latent=latent3d.out(0), audio_latent=av_parts.out(1))
             final_width = add('ComfyMathExpression', expression='max(32, round(a*b/32)*32)',
@@ -192,7 +202,7 @@ class H3DirectorStudioV1:
             upscale_noise = add('RandomNoise', noise_seed=545916073993762)
             upscale_sampler_node = add('KSamplerSelect', sampler_name=upscale_sampler)
             upscale_sigmas = add('BasicScheduler', model=upscale_model,
-                                 scheduler=upscale_scheduler, steps=int(refine_steps), denoise=0.20)
+                                 scheduler=upscale_scheduler, steps=int(refine_steps), denoise=refine_denoise)
             final_output = add('SamplerCustomAdvanced',
                                noise=upscale_noise.out(0), guider=upscale_guider.out(0),
                                sampler=upscale_sampler_node.out(0), sigmas=upscale_sigmas.out(0),
@@ -200,28 +210,119 @@ class H3DirectorStudioV1:
             final_latent = final_output.out(1)
         images = add('VAEDecode', samples=final_latent, vae=video_vae)
         audio = add('VAEDecodeAudio', samples=final_latent, vae=audio_vae)
-        if not mode_preview:
-            trimmed = add('MiniMaxH3MotionContextTrim', images=images.out(0), audio=audio.out(0),
-                          trim_frames=motion.out(1), fps=24.0, match_tail=True)
-            frames_out, audio_out = trimmed.out(0), trimmed.out(1)
-        else:
-            frames_out, audio_out = images.out(0), audio.out(0)
+        # Base review must look exactly like the delivered clip: remove pinned context and align audio.
+        trimmed = add('MiniMaxH3MotionContextTrim', images=images.out(0), audio=audio.out(0),
+                      trim_frames=motion.out(1), fps=24.0, match_tail=True)
+        frames_out, audio_out = trimmed.out(0), trimmed.out(1)
         writer = add('H3IntegratedVideoWriter',
-                     frames=frames_out, audio=audio_out, saved_base_latent=save_base.out(0),
+                     frames=frames_out, audio=audio_out, saved_base_latent=saved_continuity,
                      filename_prefix=f'{project}/{"Base" if mode_preview else "Final"}_clip_{index:03}',
                      save_mode='save')
         if unique_id is not None:
             writer.set_override_display_id(str(unique_id))
-        LOG.info('H3 Director Studio V1, clip=%s/%s, mode=%s, base=%d, upscale=%d',
+        LOG.info('H3 Director Studio V2, clip=%s/%s, mode=%s, base=%d, upscale=%d',
                  index, len(shots), render_mode, base_steps, refine_steps)
         return {'expand': g.finalize(), 'result': (writer.out(0), frames_out, audio_out)}
+
+
+class H3DirectorAcceptedBaseLoad:
+    """Load an exact Director BASE as a normal H3 AV latent.
+
+    Motion Context owns saving and continuity. This Director-owned adapter
+    reads only the accepted project's numbered slot, so it needs no change
+    whatsoever to the installed Motion Context extension.
+    """
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {
+            "project_key": ("STRING", {"default": "h3_director_v1_project"}),
+            "clip_index": ("INT", {"default": 1, "min": 1, "max": 9999}),
+        }}
+
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "load"
+    CATEGORY = "MiniMax H3/Director/Internal"
+
+    @classmethod
+    def IS_CHANGED(cls, project_key, clip_index):
+        try:
+            import folder_paths
+            from pathlib import Path
+            project = safe_project(project_key)
+            root = Path(folder_paths.get_output_directory()).resolve()
+            path = (root / project / ("clip_%05d.safetensors" % int(clip_index))).resolve()
+            if root not in path.parents:
+                return float("nan")
+            return "%s:%d" % (path, path.stat().st_mtime_ns)
+        except Exception:
+            return float("nan")
+
+    def load(self, project_key, clip_index):
+        import folder_paths
+        from pathlib import Path
+        from safetensors.torch import load_file
+        import comfy.nested_tensor
+        project = safe_project(project_key)
+        root = Path(folder_paths.get_output_directory()).resolve()
+        path = (root / project / ("clip_%05d.safetensors" % int(clip_index))).resolve()
+        if root not in path.parents:
+            raise ValueError("H3 Director: invalid accepted BASE location.")
+        if not path.is_file():
+            raise FileNotFoundError("H3 Director: accepted BASE not found: %s" % path)
+        data = load_file(str(path), device="cpu")
+        if "video" not in data or "audio" not in data:
+            raise ValueError("H3 Director: %s is not an H3 Motion Context AV latent." % path.name)
+        video = data["video"].contiguous().clone()
+        audio = data["audio"].contiguous().clone()
+        return ({"samples": comfy.nested_tensor.NestedTensor((video, audio))},)
+
+
+# H3_DIRECTOR_MODEL_RELEASE_V1
+def _h3_director_release_models():
+    """Unload all Comfy model patchers and return cached VRAM to CUDA."""
+    import gc
+    import comfy.model_management as model_management
+    model_management.unload_all_models()
+    gc.collect()
+    model_management.soft_empty_cache(force=True)
+    LOG.info('H3 Director released loaded models and cleared the GPU cache.')
+
+
+def _register_h3_director_release_route():
+    try:
+        from aiohttp import web
+        from server import PromptServer
+    except ImportError:
+        return
+    server = getattr(PromptServer, 'instance', None)
+    if server is None or getattr(_register_h3_director_release_route, '_done', False):
+        return
+
+    @server.routes.post('/h3_director/release_models')
+    async def _release_models_route(_request):
+        _h3_director_release_models()
+        return web.json_response({'released': True})
+
+    _register_h3_director_release_route._done = True
+
+
+_register_h3_director_release_route()
 
 
 NODE_CLASS_MAPPINGS = {
     'H3DirectorStudioV1': H3DirectorStudioV1,
     'H3IntegratedVideoWriter': H3IntegratedVideoWriter,
+    'H3DirectorAcceptedBaseLoad': H3DirectorAcceptedBaseLoad,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     'H3DirectorStudioV1': 'H3 Director Studio',
     'H3IntegratedVideoWriter': 'H3 Internal Video Writer',
+    'H3DirectorAcceptedBaseLoad': 'H3 Director Accepted BASE Loader',
 }
+
+
+# H3_DIRECTOR_BASE_CONTINUITY_V2
+from .h3_double_save import NODE_CLASS_MAPPINGS as _double_save_nodes
+NODE_CLASS_MAPPINGS.update(_double_save_nodes)
+
+# H3_DIRECTOR_REFINE_DENOISE_V1
