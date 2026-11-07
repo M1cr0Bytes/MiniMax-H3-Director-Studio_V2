@@ -261,9 +261,6 @@ function mirror(node) {
     syncControls();
     await nativeAction('Chain');
   },actions,{background:'#235844'});
-  const reset=button('↺ Reset indices',()=>{
-    if (window.confirm('Reset to Load 0 / Save 1? Existing latent files are kept.')) dispatch('Reset');
-  },actions);
   button('Clear latents',()=>{
     if(window.confirm('Delete numbered latent files for the current project? This breaks existing continuity.') &&
        window.confirm('Confirm permanent deletion of numbered latent files.')) dispatch('Clear latents');
@@ -664,9 +661,6 @@ function mirror(node) {
     if(action==='Stop'||(action==='Chain'&&chainMeta.chaining)){
       chainMeta.chaining=false;warning.textContent='Chain stops after the current clip.';return true;
     }
-    if(action==='Reset'){
-      source.clip_index.value=1;refreshStatus();return true;
-    }
     if(action==='Clear latents'){
       try{
         const response=await api.fetchApi('/h3_motion_context/clear_latents',{
@@ -797,7 +791,7 @@ function mirror(node) {
   apply(project,'project_key',slug,()=>{
     // Never silently reset Load/Save; changing a project redirects future latents.
     if(Number(getNative(ID.load,'clip_index',1))>0){
-      warning.textContent='Project changed during an active sequence. Reset indices before generating in the new folder.';
+      warning.textContent='Project changed during an active sequence. Select Clip 1 or clear temporary latents before generating in the new folder.';
     } else warning.textContent='';
     syncProject();
   });
@@ -1064,10 +1058,9 @@ app.registerExtension({
     const keep=buttonBy(panel,'✓ Accept BASE');
     const approve=buttonBy(panel,'✓ Approve');
     const originalChain=buttonBy(panel,'▶▶ Chain');
-    const reset=buttonBy(panel,'↺ Reset indices');
     const clear=buttonBy(panel,'Clear latents');
     const clipSelect=all(panel,'select').find(s=>all(s,'option').some(o=>/^Clip\\s+\\d+$/i.test(text(o))));
-    if(!full||!base||!keep||!approve||!originalChain||!reset||!clear||!clipSelect)return;
+    if(!full||!base||!keep||!approve||!originalChain||!clear||!clipSelect)return;
     panel.__h3DirectorStudioV2=true; addStyles(); panel.classList.add('h3-v2-ui');
 
     const oldActions=full.parentElement;
@@ -1120,9 +1113,8 @@ app.registerExtension({
     const chain=el('button','h3v2-action','▶▶ RUN CHAIN'); chain.type='button';chain.style.background=actionColors.chain;
     chain.addEventListener('click',event=>{event.preventDefault();originalChain.click();setTimeout(refreshChain,40);});
     originalChain.style.display='none';
-    reset.textContent='↻ RESET CHAIN POSITION';reset.classList.add('h3v2-action');reset.style.background=actionColors.reset;
     clear.textContent='CLEAR TEMPORARY LATENTS';clear.classList.add('h3v2-action');clear.style.background=actionColors.clear;
-    chainActions.append(chain,reset,clear);chainGroup.append(chainActions);
+    chainActions.append(chain,clear);chainGroup.append(chainActions);
     oldActions.remove();
 
     const status=all(panel,'div').find(d=>text(d).startsWith('Continuity · Load'));
