@@ -80,24 +80,10 @@ function decode(raw) {
 const encode = shots => shots.map((shot,i)=>`[SEGMENT ${i+1}]\n${shot??''}`).join('\n\n');
 // Technical nodes are no longer in the canvas: virtual read/write adapters map
 // the original Studio UI to persistent widgets on the integrated Director.
-let studioVirtualNodes = new Map();
-const graphNode = id => studioVirtualNodes.get(id) ?? null;
 function widget(node,name,idx=null) {
   if (!node) return null;
   return node.widgets?.find(w=>w.name===name) ?? (idx===null?null:node.widgets?.[idx]) ?? null;
 }
-function setNative(id,name,value,idx=null) {
-  const n=graphNode(id), w=widget(n,name,idx);
-  if (!w) return false;
-  if (w.value !== value) {
-    w.value=value;
-    try { w.callback?.(value, app.canvas, n); }
-    catch(e) { console.warn('[H3 Studio] Native widget callback:', id,name,e); }
-    app.graph?.setDirtyCanvas?.(true,true);
-  }
-  return true;
-}
-const getNative=(id,name,idx=null)=>widget(graphNode(id),name,idx)?.value;
 const button=(name, onclick, parent, style={})=>{
   const b=$('button',{...S.btn,...style},name);
   b.type='button'; b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();onclick();});
@@ -124,6 +110,22 @@ function select(options) {
 function heading(parent,text) {parent.append($('div',{fontSize:'17px',fontWeight:'700',color:colors.fg},text));}
 function mirror(node) {
   if (node.__h3studio) return;
+  // Keep virtual controls local to this Director. Other workflow tabs can
+  // contain another Director with the same virtual IDs.
+  const studioVirtualNodes=new Map();
+  const graphNode=id=>studioVirtualNodes.get(id) ?? null;
+  function setNative(id,name,value,idx=null) {
+    const n=graphNode(id), w=widget(n,name,idx);
+    if(!w)return false;
+    if(w.value!==value){
+      w.value=value;
+      try{w.callback?.(value,app.canvas,n);}
+      catch(e){console.warn('[H3 Studio] Native widget callback:',id,name,e);}
+      app.graph?.setDirtyCanvas?.(true,true);
+    }
+    return true;
+  }
+  const getNative=(id,name,idx=null)=>widget(graphNode(id),name,idx)?.value;
   const source={};
   for (const name of ['general_prompt','segments_text','project_key','production_mode',
     'render_mode','duration_s','ratio','megapixels','base_steps','refine_steps',
@@ -192,6 +194,8 @@ function mirror(node) {
   const chainMeta={awaiting:false,chaining:false,remaining:0,releasingModels:false};
   virtual(ID.chain,[valueWidget('segments',[],{get:()=>chainMeta.remaining,set:v=>chainMeta.remaining=Number(v)})])._h3mc=chainMeta;
   let chainRunOwner=false;
+  const ownerGraph=app.graph;
+  let pendingJob=null;
   // The Studio becomes the source of truth; the on-disk latent slot remains
   // handled by the existing Motion Context plugin in the internal runtime graph.
   const hideNativeWidgets=()=>{
@@ -613,6 +617,16 @@ function mirror(node) {
   function active(){return Boolean(chainMeta.awaiting||chainMeta.chaining||chainMeta.releasingModels);}
   async function queueOnce({randomizeSeed=true}={}){
     if(chainMeta.awaiting)return false;
+    if(app.graph!==ownerGraph || ownerGraph?.getNodeById?.(node.id)!==node){
+      chainMeta.chaining=false;chainRunOwner=false;
+      warning.textContent='Chain stopped: return to the original workflow tab before generating.';
+      return false;
+    }
+    if(app.processingQueue || window.__h3DirectorSubmissionLock){
+      chainMeta.chaining=false;chainRunOwner=false;
+      warning.textContent='Chain stopped: another prompt is being submitted. Try again when it finishes.';
+      return false;
+    }
     if(!shots[Number(source.clip_index.value)-1]?.trim()){
       warning.textContent=`Segment ${source.clip_index.value} has no prompt.`;return false;
     }
@@ -623,13 +637,56 @@ function mirror(node) {
       source.h3_rng_value.value=Number(next&((1n<<53n)-1n));
       seed.value=String(source.h3_rng_value.value);
     }
+    const expectedIndex=Number(source.clip_index.value);
+    const expectedProject=String(source.project_key.value);
+    const expectedSegments=String(source.segments_text.value);
+    const expectedMode=String(source.render_mode.value);
+    const job={id:null,early:new Map()};pendingJob=job;
     chainMeta.awaiting=true;chainRunOwner=true;warning.textContent='';monitorBegin();
-    try{await app.queuePrompt(0,1);return true;}
-    catch(e){chainMeta.awaiting=false;chainMeta.chaining=false;chainRunOwner=false;
-      warning.textContent=`Cannot queue clip: ${e.message}`;monitorEnd(false);return false;}
+    const previousQueue=api.queuePrompt;
+    if(typeof previousQueue!=='function'){
+      pendingJob=null;chainMeta.awaiting=false;chainMeta.chaining=false;chainRunOwner=false;
+      warning.textContent='Cannot track this ComfyUI queue safely.';return false;
+    }
+    window.__h3DirectorSubmissionLock=true;
+    const tracked=async function(number,prompt,...rest){
+      const input=prompt?.output?.[String(node.id)]?.inputs;
+      if(app.graph!==ownerGraph || ownerGraph?.getNodeById?.(node.id)!==node ||
+         !input || Number(input.clip_index)!==expectedIndex ||
+         String(input.project_key)!==expectedProject ||
+         String(input.segments_text)!==expectedSegments ||
+         String(input.render_mode)!==expectedMode){
+        throw Error('The queued workflow or Director settings do not match this clip. Nothing was submitted.');
+      }
+      const response=await previousQueue.call(this,number,prompt,...rest);
+      if(!response?.prompt_id)throw Error('ComfyUI did not return a prompt ID; automatic Chain stopped.');
+      job.id=String(response.prompt_id);
+      return response;
+    };
+    api.queuePrompt=tracked;
+    try{
+      const accepted=await app.queuePrompt(0,1);
+      if(accepted===false || !job.id)throw Error('Could not confirm the queued execution ID; automatic Chain stopped.');
+      console.info(`[H3 Director Chain] queued clip ${expectedIndex}, prompt ${job.id}`);
+      const early=job.early.get(job.id);
+      if(early!==undefined)completeQueue(early,job.id);
+      return true;
+    }catch(e){
+      if(pendingJob===job){pendingJob=null;chainMeta.awaiting=false;chainMeta.chaining=false;chainRunOwner=false;
+        warning.textContent=`Cannot queue clip: ${e.message}`;monitorEnd(false);}
+      return false;
+    }finally{
+      if(api.queuePrompt===tracked)api.queuePrompt=previousQueue;
+      window.__h3DirectorSubmissionLock=false;
+    }
   }
-  function completeQueue(ok){
-    if(!chainRunOwner||!chainMeta.awaiting)return;
+  function completeQueue(ok,promptId){
+    if(!chainRunOwner||!chainMeta.awaiting||!pendingJob)return;
+    const id=String(promptId??'');
+    if(!id)return;
+    if(!pendingJob.id){pendingJob.early.set(id,ok);return;}
+    if(id!==pendingJob.id)return;
+    pendingJob=null;
     chainMeta.awaiting=false;monitorEnd(ok);
     const acceptedPass=String(source.render_mode.value)==='Upscale accepted base';
     if(ok && acceptedPass){
@@ -643,8 +700,9 @@ function mirror(node) {
     if(chainMeta.chaining){
       const next=Number(source.clip_index.value)+1;
       if(next<=shots.length){
-        source.clip_index.value=next;expanded=next-1;renderShots();refreshStatus();
-        queueOnce();return;
+        keep('clip_index',next);expanded=next-1;renderShots();refreshStatus();
+        // Let the submission wrapper restore itself before scheduling the next clip.
+        setTimeout(()=>void queueOnce(),0);return;
       }
       chainMeta.chaining=false;chainRunOwner=false;refreshStatus();
       void releaseModels('the completed chain');return;
@@ -652,8 +710,8 @@ function mirror(node) {
     chainRunOwner=false;refreshStatus();
     void releaseModels('the completed render');
   }
-  const onSuccess=()=>completeQueue(true);
-  const onError=()=>completeQueue(false);
+  const onSuccess=event=>completeQueue(true,event?.detail?.prompt_id);
+  const onError=event=>completeQueue(false,event?.detail?.prompt_id);
   api.addEventListener('execution_success',onSuccess);
   api.addEventListener('execution_error',onError);
   api.addEventListener('execution_interrupted',onError);

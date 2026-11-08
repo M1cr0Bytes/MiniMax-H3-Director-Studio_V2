@@ -1,5 +1,12 @@
 # Changelog
 
+## Chain execution tracking
+
+- Associate completion events with the submitted prompt ID and ignore events from other executions.
+- Keep each Director's virtual controls separate and check the active workflow and clip before queueing.
+- Stop automatic chaining if the original workflow is no longer active; return to that tab to resume.
+- Validated with simulated queue events; live ComfyUI verification is still needed.
+
 ## BASE + FINAL continuity update
 
 - Added a separate Motion Context to the upscale pass, using the preceding FINAL audiovisual latent at the output resolution.
