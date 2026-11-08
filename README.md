@@ -66,6 +66,12 @@ For example, clip 2 uses BASE 1 to generate BASE 2, then FINAL 1 when producing 
 - Keep the BASE dimensions, aspect ratio and upscale multiplier consistent throughout a chain. The previous FINAL context must match the current FINAL resolution. FINAL checkpoints require additional disk space.
 - Re-rendering a clip overwrites its numbered continuity slot; later clips need to be regenerated to follow the new result. Preserve any checkpoints or outputs you want to keep before clearing or restarting a project.
 
+## Optional BASE preview
+
+The Director no longer contains a built-in live preview panel. The included workflow places Kijai's **Preview BASE** node outside the Director, on the BASE model path, so its live preview can be enabled or bypassed independently.
+
+To turn Kijai's preview off, bypass the **PREVIEW BASE** node; to use it again, restore the node's normal mode. It previews the BASE pass. ComfyUI's own preview settings and other preview nodes are separate.
+
 ## Spectrum in the included workflow
 
 Spectrum is connected **only to the BASE pass**:

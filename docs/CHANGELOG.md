@@ -23,6 +23,8 @@
 
 ## V2
 
+- Removed the built-in Director live preview panel and placed the optional Kijai BASE preview outside the Director, where it can be enabled or bypassed independently.
+
 - Added a clean public workflow with no personal prompts, references, audio, render history or local output paths.
 - Added BASE review flow: render a BASE pass, choose it, then upscale that exact accepted latent.
 - Added a direct BASE + Upscale execution path for clips that do not need review.
