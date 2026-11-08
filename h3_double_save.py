@@ -1,4 +1,4 @@
-"""Internal save ordering for BASE-only Director continuity."""
+"""Internal save ordering for separate BASE and FINAL continuity."""
 import logging
 
 LOG = logging.getLogger('h3_studio_v1')

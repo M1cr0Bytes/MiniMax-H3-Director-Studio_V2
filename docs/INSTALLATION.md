@@ -23,6 +23,12 @@ Restart ComfyUI. Search for **H3 Director Studio** in the node menu and load `wo
 
 For a first test, use a short clip, a small BASE resolution and your own authorized references. Confirm BASE generation first, then test **Accept BASE → Upscale**. Test Chain only after a successful single clip.
 
+## Updating an existing Director
+
+Save/export your workflow and close ComfyUI. Update the existing Director installation in place; do not install a second copy under a different folder name. Restart ComfyUI and refresh the browser. Your existing Director node and workflow remain compatible.
+
+This update adds separate FINAL continuity checkpoints. For a first test use a new project and start at clip 1. To use existing BASE checkpoints, upscale them in order from clip 1 before generating later FINAL clips. An existing MP4 or a BASE checkpoint alone cannot provide the previous FINAL context. Back up any project checkpoints you need before clearing or regenerating them.
+
 ## Spectrum setup
 
 The V2 workflow places Spectrum only in the BASE route, after the BASE LoRA stack. Use it for a non-Turbo BASE at around 25 steps. Do not use it with Turbo LoRAs, short Turbo schedules or the 3D latent-upscale branch.

@@ -54,8 +54,8 @@ class H3IntegratedVideoWriter:
     def write(self, frames, audio, saved_base_latent, filename_prefix, save_mode, prompt=None, extra_pnginfo=None):
         # Do not save MP4 here: images and audio leave through the Director outputs.
         # The dependency on saved_base_latent preserves the BASE continuity write.
-        LOG.info('H3 V1 frames/audio ready; BASE latent saved: %s', saved_base_latent)
-        return {'result': (f'{filename_prefix} (frames/audio ready; BASE continuity: {saved_base_latent})',)}
+        LOG.info('[H3-FINAL-CONTEXT] Frames/audio ready; checkpoint: %s', saved_base_latent)
+        return {'result': (f'{filename_prefix} (frames/audio ready; continuity: {saved_base_latent})',)}
 
 
 class H3DirectorStudioV1:
@@ -103,7 +103,7 @@ class H3DirectorStudioV1:
     FUNCTION = 'run'
     OUTPUT_NODE = True
     CATEGORY = 'MiniMax H3/Director'
-    DESCRIPTION = 'H3 Director Studio V2; BASE + UPSCALE + continuity dynamically executed inside this single node.'
+    DESCRIPTION = 'H3 Director Studio V2; independent BASE and FINAL Motion Context continuity.'
 
     @classmethod
     def IS_CHANGED(cls, **kwargs):
@@ -121,6 +121,7 @@ class H3DirectorStudioV1:
             raise ValueError('Refine denoise debe estar entre 0 y 1.')
         shots = parse_segments(segments_text)
         project = safe_project(project_key)
+        final_project = f'{project}/final'
         index = int(clip_index)
         if index < 1 or index > len(shots):
             raise ValueError(f'H3 Director Studio: Clip {index} is outside 1–{len(shots)} segment(s).')
@@ -178,6 +179,7 @@ class H3DirectorStudioV1:
             base_latent = base_ready.out(0)
             saved_continuity = save_base.out(0)
 
+        trim_frames = motion.out(1)
         if mode_preview:
             final_latent = base_latent
         else:
@@ -197,8 +199,17 @@ class H3DirectorStudioV1:
                              prompt=prompt_text, **extras,
                              width=final_width.out(1), height=final_height.out(1),
                              length=frame_length.out(1), ref_image_size='match')
+            # Same two-stage context algorithm as the successful isolated test.
+            # Save full raw FINAL AV latents; let Motion Context slice their tail.
+            final_context = add('H3DirectorFinalContextLoad',
+                                latent_path=final_project, clip_index=index - 1)
+            final_motion = add('MiniMaxH3MotionContext',
+                               conditioning=upscale_ref.out(0), vae=video_vae,
+                               latent=joint.out(0), context_length=22,
+                               audio_context_length=24,
+                               context_latent=final_context.out(0), audio_vae=audio_vae)
             windows = add('H3ContextWindows', model=upscale_model, window_seconds=5.0, overlap_seconds=1.3)
-            upscale_guider = add('BasicGuider', model=windows.out(0), conditioning=upscale_ref.out(0))
+            upscale_guider = add('BasicGuider', model=windows.out(0), conditioning=final_motion.out(0))
             upscale_noise = add('RandomNoise', noise_seed=545916073993762)
             upscale_sampler_node = add('KSamplerSelect', sampler_name=upscale_sampler)
             upscale_sigmas = add('BasicScheduler', model=upscale_model,
@@ -207,12 +218,19 @@ class H3DirectorStudioV1:
                                noise=upscale_noise.out(0), guider=upscale_guider.out(0),
                                sampler=upscale_sampler_node.out(0), sigmas=upscale_sigmas.out(0),
                                latent_image=joint.out(0))
-            final_latent = final_output.out(1)
+            save_final = add('H3DirectorSaveContinuity',
+                             latent=final_output.out(1),
+                             filename_prefix=f'{final_project}/clip', clip_index=index)
+            final_ready = add('H3DirectorLatentAfterSave', latent=final_output.out(1),
+                              saved_path=save_final.out(0))
+            final_latent = final_ready.out(0)
+            saved_continuity = save_final.out(0)
+            trim_frames = final_motion.out(1)
         images = add('VAEDecode', samples=final_latent, vae=video_vae)
         audio = add('VAEDecodeAudio', samples=final_latent, vae=audio_vae)
         # Base review must look exactly like the delivered clip: remove pinned context and align audio.
         trimmed = add('MiniMaxH3MotionContextTrim', images=images.out(0), audio=audio.out(0),
-                      trim_frames=motion.out(1), fps=24.0, match_tail=True)
+                      trim_frames=trim_frames, fps=24.0, match_tail=True)
         frames_out, audio_out = trimmed.out(0), trimmed.out(1)
         writer = add('H3IntegratedVideoWriter',
                      frames=frames_out, audio=audio_out, saved_base_latent=saved_continuity,
@@ -277,6 +295,83 @@ class H3DirectorAcceptedBaseLoad:
         return ({"samples": comfy.nested_tensor.NestedTensor((video, audio))},)
 
 
+class H3DirectorFinalContextLoad:
+    """Require the preceding FINAL checkpoint, never a BASE substitute."""
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {'required': {
+            'latent_path': ('STRING', {'default': ''}),
+            'clip_index': ('INT', {'default': 0, 'min': 0, 'max': 9999}),
+        }}
+
+    RETURN_TYPES = ('LATENT',)
+    FUNCTION = 'load'
+    CATEGORY = 'MiniMax H3/Director/Internal'
+
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        return float('nan')
+
+    def load(self, latent_path, clip_index):
+        import nodes
+        original = nodes.NODE_CLASS_MAPPINGS.get('MiniMaxH3MotionContextLoadLatent')
+        if original is None:
+            raise RuntimeError('H3 Director: install H3 Motion Context first.')
+        try:
+            return original().load(latent_path=latent_path, clip_index=int(clip_index))
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(
+                f'H3 Director: previous FINAL clip {clip_index} is missing. '
+                'Generate/upscale that clip with this update first. '
+                'Older MP4 files and BASE checkpoints cannot replace a FINAL checkpoint.'
+            ) from exc
+
+
+def _context_project(value):
+    from pathlib import Path
+    import folder_paths
+    root = Path(folder_paths.get_output_directory()).resolve()
+    project = (root / safe_project(value)).resolve()
+    if root not in project.parents:
+        raise ValueError('Invalid project path.')
+    return project
+
+
+def _context_directory(project, stage):
+    if stage == 'base':
+        return project
+    if stage != 'final':
+        raise ValueError('Invalid continuity stage.')
+    directory = project / 'final'
+    if directory.is_symlink() or directory.resolve().parent != project:
+        raise ValueError('FINAL directory escapes project.')
+    return directory
+
+
+def _context_slot_exists(value, slot, stage):
+    if not 1 <= int(slot) <= 9999:
+        raise ValueError('Invalid continuity slot.')
+    directory = _context_directory(_context_project(value), stage)
+    path = directory / f'clip_{int(slot):05d}.safetensors'
+    return path.is_file() and not path.is_symlink()
+
+
+def _clear_context_slots(value):
+    project = _context_project(value)
+    # Validate both directories before deleting anything. No recursive deletion.
+    directories = [_context_directory(project, stage) for stage in ('base', 'final')]
+    removed = 0
+    for directory in directories:
+        if not directory.is_dir():
+            continue
+        for path in directory.iterdir():
+            if (not path.is_symlink() and path.is_file()
+                    and re.fullmatch(r'clip_\d{5}\.safetensors', path.name)):
+                path.unlink()
+                removed += 1
+    return removed
+
+
 # H3_DIRECTOR_MODEL_RELEASE_V1
 def _h3_director_release_models():
     """Unload all Comfy model patchers and return cached VRAM to CUDA."""
@@ -303,6 +398,25 @@ def _register_h3_director_release_route():
         _h3_director_release_models()
         return web.json_response({'released': True})
 
+    @server.routes.post('/h3_director/final_context/slot_exists')
+    async def _slot_exists(request):
+        try:
+            data = await request.json()
+            exists = _context_slot_exists(data.get('latent_path', ''),
+                                          data.get('clip_index', 0),
+                                          data.get('stage', 'base'))
+            return web.json_response({'exists': exists})
+        except (ValueError, TypeError) as exc:
+            return web.json_response({'error': str(exc)}, status=400)
+
+    @server.routes.post('/h3_director/final_context/clear_latents')
+    async def _clear_latents(request):
+        try:
+            data = await request.json()
+            return web.json_response({'removed': _clear_context_slots(data.get('latent_path', ''))})
+        except (ValueError, TypeError) as exc:
+            return web.json_response({'error': str(exc)}, status=400)
+
     _register_h3_director_release_route._done = True
 
 
@@ -313,6 +427,7 @@ NODE_CLASS_MAPPINGS = {
     'H3DirectorStudioV1': H3DirectorStudioV1,
     'H3IntegratedVideoWriter': H3IntegratedVideoWriter,
     'H3DirectorAcceptedBaseLoad': H3DirectorAcceptedBaseLoad,
+    'H3DirectorFinalContextLoad': H3DirectorFinalContextLoad,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     'H3DirectorStudioV1': 'H3 Director Studio',

@@ -1,6 +1,6 @@
 # H3 Director Studio V2
 
-H3 Director Studio is a ComfyUI node for planning and rendering MiniMax H3 video in reviewable segments. It generates a BASE pass, lets you keep that exact BASE, applies the 3D latent upscale, and preserves continuity data for the next segment through Motion Context.
+H3 Director Studio is a ComfyUI node for planning and rendering MiniMax H3 video in reviewable segments. It generates a BASE pass, lets you keep that exact BASE, applies the 3D latent upscale, and uses separate BASE and FINAL Motion Context checkpoints for the next segment.
 
 The repository contains the Director node and a clean, pinned reference workflow. It does **not** bundle MiniMax H3 models, LoRAs, third-party custom nodes, reference files, audio, generated videos, or personal prompts.
 
@@ -33,7 +33,7 @@ The workflow includes a standard BASE path and a separate Upscale path. BASE and
 ### Manual clip workflow
 
 1. Choose the clip with **Set active clip**. For clip `N`, the Director loads continuity slot `N−1` and saves slot `N`.
-2. Set the switch to **Generate BASE** to render and review just the current BASE pass.
+2. Set the switch to **Generate BASE**, then press **Generate clip N** to render and review just the current BASE pass.
 3. Press **Keep BASE → Upscale** to upscale that exact accepted BASE pass.
 4. Press **Approve final → next clip** to move the selector to the following clip and prepare its next BASE pass.
 
@@ -43,11 +43,21 @@ Set the switch to **Generate final** when the current clip does not need a separ
 
 **Run Chain** follows the active clip selector:
 
-- If the selected clip has no saved continuity latent, Chain renders that clip first.
-- If it already has one, Chain continues from the following clip.
+- If the selected clip has no saved FINAL continuity latent, Chain renders that clip first, including BASE and upscale.
+- If it already has a FINAL continuity latent, Chain continues from the following clip.
 - The selector advances automatically as each clip completes.
 
-Use **Clear temporary latents** only when you want to begin the project again from clip 1. It deletes the numbered continuity latents for the current project and returns the selector to clip 1.
+Use **Clear temporary latents** only when you want to begin the project again from clip 1. It deletes the current project's numbered BASE and FINAL continuity latents and returns the selector to clip 1. It does not delete exported videos.
+
+## BASE and FINAL continuity
+
+The BASE pass continues from the previous BASE latent. The upscale pass separately continues from the previous FINAL audiovisual latent at the output resolution. The FINAL sampler output is saved before trimming, and Motion Context trims video and audio together for delivery. The aim is to improve continuity after the upscale; results depend on the scene and settings.
+
+- BASE slots: `ComfyUI/output/<project>/clip_00001.safetensors`.
+- FINAL slots: `ComfyUI/output/<project>/final/clip_00001.safetensors`.
+- Start a new project at clip 1 when first trying this update. Generating FINAL clip 2 requires a FINAL clip 1 saved by this version; an older MP4 or BASE checkpoint is not a substitute. Existing BASEs may be upscaled in order from clip 1.
+- Keep the BASE dimensions, aspect ratio and upscale multiplier consistent throughout a chain. The previous FINAL context must match the current FINAL resolution. FINAL checkpoints require additional disk space.
+- Re-rendering a clip overwrites its numbered continuity slot; later clips need to be regenerated to follow the new result. Preserve any checkpoints or outputs you want to keep before clearing or restarting a project.
 
 ## Spectrum in the included workflow
 

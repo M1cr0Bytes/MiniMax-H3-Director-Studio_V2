@@ -663,7 +663,7 @@ function mirror(node) {
     }
     if(action==='Clear latents'){
       try{
-        const response=await api.fetchApi('/h3_motion_context/clear_latents',{
+        const response=await api.fetchApi('/h3_director/final_context/clear_latents',{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({latent_path:source.project_key.value})});
         if(!response.ok)throw Error(`HTTP ${response.status}`);
@@ -683,19 +683,19 @@ function mirror(node) {
     }
     if(action==='Chain'){
       const curr=Number(source.clip_index.value);
-      const exists=await slotExists(curr);
-      const first=(curr===1&&!exists)?1:curr+1;
+      const exists=await slotExists(curr,'final');
+      const first=exists?curr+1:curr;
       if(first>shots.length){warning.textContent='All segments already generated.';return false;}
       source.clip_index.value=first;expanded=first-1;renderShots();refreshStatus();
       chainMeta.chaining=true;return queueOnce();
     }
     return queueOnce();
   }
-  async function slotExists(slot){
+  async function slotExists(slot,stage='base'){
     const path=getNative(ID.load,'latent_path',0);
-    const response=await api.fetchApi('/h3_motion_context/slot_exists',{
+    const response=await api.fetchApi('/h3_director/final_context/slot_exists',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({latent_path:path||'h3_context',clip_index:slot})
+      body:JSON.stringify({latent_path:path||'h3_context',clip_index:slot,stage})
     });
     if(!response.ok)throw Error(`Slot check returned HTTP ${response.status}`);
     const data=await response.json();
@@ -896,6 +896,7 @@ function mirror(node) {
   restore();
   function refreshStatus(){
     const {load,save}=readIndices();
+    clipPicker.value=String(save);
     status.textContent=`Continuity · Load ${load} / Save ${save} · Clip ${load+1}`;
   }
   refreshStatus();
