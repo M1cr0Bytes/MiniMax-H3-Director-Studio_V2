@@ -56,6 +56,8 @@ H3 Director Studio automatically saves **two separate audiovisual latent checkpo
 - **BASE latent:** the next clip's BASE generation uses the previous clip's BASE latent to continue its motion and audio.
 - **FINAL latent:** after the 3D latent upscale, the next clip's upscale pass uses the previous clip's FINAL latent at the final resolution. This carries the upscale-stage result across the join, helping maintain visual and audio continuity in the finished clips.
 
+**Why two latents?** Continuity at BASE resolution alone does not ensure that the independently upscaled clips retain the same level of detail and appearance at the join. Carrying the previous FINAL latent into the next upscale pass helps reduce visible shifts in sharpness and detail between segments, while also carrying audio context forward. This aims for a smoother transition in the finished video; the result depends on the clips and settings.
+
 For example, clip 2 uses BASE 1 to generate BASE 2, then FINAL 1 when producing FINAL 2. Each FINAL checkpoint is saved before the context is trimmed; Motion Context trims video and audio together for delivery. Results depend on the scene and settings.
 
 - BASE slots: `ComfyUI/output/<project>/clip_00001.safetensors`.
