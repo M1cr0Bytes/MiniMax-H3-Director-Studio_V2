@@ -28,6 +28,27 @@ Connect the BASE model and CLIP, the Upscale model and CLIP, the video/audio VAE
 
 The workflow includes a standard BASE path and a separate Upscale path. BASE and Upscale samplers, schedulers, steps, denoise, latent multiplier and the 3D latent upscaler model remain configurable from the Director.
 
+## Using the buttons
+
+### Manual clip workflow
+
+1. Choose the clip with **Set active clip**. For clip `N`, the Director loads continuity slot `N−1` and saves slot `N`.
+2. Set the switch to **Generate BASE** to render and review just the current BASE pass.
+3. Press **Keep BASE → Upscale** to upscale that exact accepted BASE pass.
+4. Press **Approve final → next clip** to move the selector to the following clip and prepare its next BASE pass.
+
+Set the switch to **Generate final** when the current clip does not need a separate BASE review; **Generate clip N** then runs BASE + 3D latent upscale in one execution.
+
+### Automated sequence
+
+**Run Chain** follows the active clip selector:
+
+- If the selected clip has no saved continuity latent, Chain renders that clip first.
+- If it already has one, Chain continues from the following clip.
+- The selector advances automatically as each clip completes.
+
+Use **Clear temporary latents** only when you want to begin the project again from clip 1. It deletes the numbered continuity latents for the current project and returns the selector to clip 1.
+
 ## Spectrum in the included workflow
 
 Spectrum is connected **only to the BASE pass**:
