@@ -49,9 +49,14 @@ Set the switch to **Generate final** when the current clip does not need a separ
 
 Use **Clear temporary latents** only when you want to begin the project again from clip 1. It deletes the current project's numbered BASE and FINAL continuity latents and returns the selector to clip 1. It does not delete exported videos.
 
-## BASE and FINAL continuity
+## Dual Motion Context: BASE and FINAL
 
-The BASE pass continues from the previous BASE latent. The upscale pass separately continues from the previous FINAL audiovisual latent at the output resolution. The FINAL sampler output is saved before trimming, and Motion Context trims video and audio together for delivery. The aim is to improve continuity after the upscale; results depend on the scene and settings.
+H3 Director Studio automatically saves **two separate audiovisual latent checkpoints for each completed clip**. Each checkpoint carries both picture and sound into the matching stage of the next clip:
+
+- **BASE latent:** the next clip's BASE generation uses the previous clip's BASE latent to continue its motion and audio.
+- **FINAL latent:** after the 3D latent upscale, the next clip's upscale pass uses the previous clip's FINAL latent at the final resolution. This carries the upscale-stage result across the join, helping maintain visual and audio continuity in the finished clips.
+
+For example, clip 2 uses BASE 1 to generate BASE 2, then FINAL 1 when producing FINAL 2. Each FINAL checkpoint is saved before the context is trimmed; Motion Context trims video and audio together for delivery. Results depend on the scene and settings.
 
 - BASE slots: `ComfyUI/output/<project>/clip_00001.safetensors`.
 - FINAL slots: `ComfyUI/output/<project>/final/clip_00001.safetensors`.
