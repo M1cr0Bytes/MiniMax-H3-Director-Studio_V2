@@ -1,5 +1,11 @@
 # Changelog
 
+## V2 UI hotfix
+
+- Restored internal vertical scrolling; opening prompts no longer auto-resizes the node.
+- Restored the Generate clip button beside the BASE/FINAL switch.
+- Corrected BASE button selection and clip-selector detection in the V2 interface.
+
 ## V2
 
 - Added a clean public workflow with no personal prompts, references, audio, render history or local output paths.

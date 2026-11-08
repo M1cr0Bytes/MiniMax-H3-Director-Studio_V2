@@ -972,7 +972,7 @@ app.registerExtension({
       .h3-director-v1-ui.h3-v2-ui{
         --h3v2-amber:#d18325; --h3v2-amber-soft:rgba(209,131,37,.52);
         --h3v2-card:#22363a; --h3v2-field:#16272b; --h3v2-text:#edf4f1;
-        --h3v2-sub:#b6c6bf; overflow-y:hidden !important; gap:9px !important;
+        --h3v2-sub:#b6c6bf; overflow-y:auto !important; gap:9px !important;
       }
       .h3-director-v1-ui.h3-v2-ui input:not([type="checkbox"]),
       .h3-director-v1-ui.h3-v2-ui select,
@@ -1054,18 +1054,18 @@ app.registerExtension({
   function enhance(node,panel){
     if(panel.__h3DirectorStudioV2)return;
     const full=buttonBy(panel,'▶ Generate BASE + Upscale');
-    const base=buttonBy(panel,'▶ Generate BASE');
+    const base=all(panel,'button').find(b=>text(b)==='▶ Generate BASE');
     const keep=buttonBy(panel,'✓ Accept BASE');
     const approve=buttonBy(panel,'✓ Approve');
     const originalChain=buttonBy(panel,'▶▶ Chain');
     const clear=buttonBy(panel,'Clear latents');
-    const clipSelect=all(panel,'select').find(s=>all(s,'option').some(o=>/^Clip\\s+\\d+$/i.test(text(o))));
-    if(!full||!base||!keep||!approve||!originalChain||!clear||!clipSelect)return;
-    panel.__h3DirectorStudioV2=true; addStyles(); panel.classList.add('h3-v2-ui');
+    const clipSelect=all(panel,'select').find(s=>all(s,'option').some(o=>/^Clip\s+\d+$/i.test(text(o))));
+    if(!full||!base||full===base||!keep||!approve||!originalChain||!clear||!clipSelect)return;
 
     const oldActions=full.parentElement;
     const clipRow=clipSelect.parentElement?.parentElement;
     if(!oldActions||!clipRow)return;
+    panel.__h3DirectorStudioV2=true; addStyles(); panel.classList.add('h3-v2-ui');
     const anchor=oldActions;
     const manual=el('section','h3v2-group');
     const chainGroup=el('section','h3v2-group');
@@ -1126,42 +1126,10 @@ app.registerExtension({
     }
     const titleTimer=setInterval(refreshChain,450); refreshChain();
 
-    // Prompt sections resize the actual LiteGraph node instead of making the
-    // Director internally scroll. The saved/manual collapsed size is restored
-    // once every prompt area is closed again.
-    let collapsedHeight=Math.max(440,Number(node.size?.[1])||440);
-    let autoBaseHeight=null,fitQueued=false;
-    const promptOpen=()=>{
-      const global=all(panel,'details').find(d=>text(d.querySelector('summary')).includes('GLOBAL PROMPT'));
-      const openSegment=all(panel,'button').some(b=>text(b).startsWith('▼ SEGMENT'));
-      return Boolean(global?.open||openSegment);
-    };
-    const fit=()=>{
-      fitQueued=false;
-      if(!node?.size)return;
-      if(!promptOpen()){
-        if(autoBaseHeight!==null){node.setSize?.([node.size[0],autoBaseHeight]);autoBaseHeight=null;}
-        return;
-      }
-      if(autoBaseHeight===null)autoBaseHeight=Math.max(440,Number(node.size[1])||collapsedHeight);
-      const required=Math.ceil(panel.scrollHeight+34);
-      const target=Math.max(autoBaseHeight,required);
-      if(target>Number(node.size[1])+2)node.setSize?.([node.size[0],target]);
-    };
-    const queueFit=()=>{if(fitQueued)return;fitQueued=true;requestAnimationFrame(fit);};
-    const observer=new MutationObserver(queueFit);
-    observer.observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
-    all(panel,'details').forEach(d=>d.addEventListener('toggle',queueFit));
-    panel.addEventListener('input',queueFit);panel.addEventListener('pointerup',queueFit);
-    const oldResize=node.onResize;
-    node.onResize=function(){
-      const out=oldResize?.apply(this,arguments);
-      if(!promptOpen()&&!autoBaseHeight)collapsedHeight=Math.max(440,Number(this.size?.[1])||collapsedHeight);
-      return out;
-    };
+    // Keep the user's node dimensions. Prompt sections scroll inside the
+    // Director instead of expanding/shrinking the canvas node automatically.
     const oldCleanup=node.__h3V2Cleanup;
-    node.__h3V2Cleanup=()=>{clearInterval(titleTimer);observer.disconnect();oldCleanup?.();};
-    setTimeout(queueFit,40);setTimeout(queueFit,180);
+    node.__h3V2Cleanup=()=>{clearInterval(titleTimer);oldCleanup?.();};
   }
 
   window.__h3DirectorStudioV2Enhance=enhance;
