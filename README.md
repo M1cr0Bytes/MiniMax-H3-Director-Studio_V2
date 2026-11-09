@@ -87,6 +87,15 @@ Use it for non-Turbo BASE generations at approximately **25 steps**. It is not r
 - The included workflow is a complete preset. Its extra helper nodes are listed separately in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md); the Director itself does not bundle them.
 - Model and LoRA filenames are examples. Replace them with compatible files installed on your system.
 
+## Legacy: H3 Director Studio V1
+
+The original **H3 Director Studio V1** remains available as an archived, self-contained download for existing V1 users. It includes its original node backend, interface and clean public workflow.
+
+- [Open the V1 legacy archive](legacy/H3_Director_Studio_V1/README.md)
+- [Download the V1 public workflow](legacy/H3_Director_Studio_V1/workflows/H3_DIRECTOR_STUDIO_V1_PUBLIC.json)
+
+V1 is preserved for compatibility and does not receive further fixes. **V2 is the maintained release.**
+
 ## Credits
 
 Built around ComfyUI's native MiniMax H3 support, H3 Motion Context, and the compatible community nodes listed in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md).
