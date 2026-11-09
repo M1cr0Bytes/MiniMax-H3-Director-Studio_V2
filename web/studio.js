@@ -1073,10 +1073,25 @@ app.registerExtension({
         background:var(--h3v2-amber); box-shadow:0 0 7px rgba(209,131,37,.34);
       }
       .h3v2-actions{display:flex; flex-wrap:wrap; align-items:end; gap:9px;}
+      .h3v2-clip-control{
+        flex:0 1 220px; min-width:178px; display:grid;
+        grid-template-columns:minmax(92px,1fr) auto; grid-template-rows:auto auto;
+        column-gap:7px; row-gap:4px; align-items:center;
+      }
+      .h3v2-clip-label{
+        grid-column:1 / -1; color:var(--h3v2-sub); font-size:11px;
+        font-weight:800; letter-spacing:.2px;
+      }
+      .h3v2-clip-control select{grid-column:1; grid-row:2; width:100%; min-width:0; height:32px;}
+      .h3v2-clip-control .h3v2-set-clip{
+        grid-column:2; grid-row:2; min-width:108px !important; min-height:32px !important;
+        height:32px; padding:5px 10px !important; white-space:nowrap;
+      }
       .h3v2-action{
         min-height:38px !important; padding:7px 12px !important; border-radius:6px !important;
         border:1px solid rgba(255,255,255,.20) !important; color:#f7fbfa !important;
-        font-weight:700 !important; letter-spacing:.05px; flex:1 1 180px;
+        font-weight:700 !important; letter-spacing:.05px; flex:1 1 170px;
+        display:inline-flex !important; align-items:center; justify-content:center;
         box-shadow:inset 0 1px 0 rgba(255,255,255,.24), inset 0 -1px 0 rgba(0,0,0,.28),
                    0 2px 0 rgba(0,0,0,.45), 0 4px 8px rgba(0,0,0,.18) !important;
         transition:transform .08s ease, box-shadow .08s ease, filter .12s ease;
@@ -1139,9 +1154,17 @@ app.registerExtension({
     manual.append(el('div','h3v2-group-title','MANUAL CLIP WORKFLOW'));
     chainGroup.append(el('div','h3v2-group-title','AUTOMATED SEQUENCE'));
     anchor.before(manual); manual.after(chainGroup);
-    manual.append(clipRow);
+    // Clip selection belongs with the manual controls: keeping it on a separate
+    // full-width row made a very small selector consume the whole section.
     const setClip=buttonBy(clipRow,'Set clip');
-    if(setClip){setClip.textContent='Set active clip';setClip.classList.add('h3v2-action','h3v2-set-clip');}
+    const clipControl=el('div','h3v2-clip-control');
+    clipControl.append(el('div','h3v2-clip-label','ACTIVE CLIP'),clipSelect);
+    if(setClip){
+      setClip.textContent='Set active clip';
+      setClip.classList.add('h3v2-action','h3v2-set-clip');
+      clipControl.append(setClip);
+    }
+    clipRow.remove();
 
     const manualActions=el('div','h3v2-actions');
     const mode=el('div','h3v2-mode');
@@ -1172,8 +1195,10 @@ app.registerExtension({
       event.preventDefault(); event.stopImmediatePropagation(); base.click();
     },true);
     mode.append(modeLabel,toggle);
-    manualActions.append(mode,full,keep,approve); manual.append(manualActions);
+    manualActions.append(clipControl,mode,full,keep,approve); manual.append(manualActions);
     base.style.display='none';
+    // Explicitly restore display when the old action row has been moved.
+    full.style.display='inline-flex';
     full.classList.add('h3v2-action'); full.style.background=actionColors.generate;
     keep.textContent='✓ KEEP BASE → UPSCALE';keep.classList.add('h3v2-action');keep.style.background=actionColors.keep;
     approve.textContent='✓ APPROVE FINAL → NEXT CLIP';approve.classList.add('h3v2-action');approve.style.background=actionColors.approve;
