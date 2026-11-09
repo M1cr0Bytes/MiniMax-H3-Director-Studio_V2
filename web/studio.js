@@ -191,7 +191,9 @@ function mirror(node) {
   virtual(ID.save,[valueWidget('filename_prefix',[],{get:()=>`${source.project_key.value}/clip`,set:()=>{}}),
     valueWidget('clip_index',[],{get:()=>Number(source.clip_index.value),set:v=>source.clip_index.value=Number(v)})]);
   virtual(ID.preview,[]); virtual(ID.final,[]);
-  const chainMeta={awaiting:false,chaining:false,remaining:0,releasingModels:false};
+  // Watchdog provides a reliable completion fallback when ComfyUI's live
+  // execution_success websocket event is delayed or missed by an extension.
+  const chainMeta={awaiting:false,chaining:false,remaining:0,releasingModels:false,watchdog:null};
   virtual(ID.chain,[valueWidget('segments',[],{get:()=>chainMeta.remaining,set:v=>chainMeta.remaining=Number(v)})])._h3mc=chainMeta;
   let chainRunOwner=false;
   const ownerGraph=app.graph;
@@ -285,6 +287,7 @@ function mirror(node) {
   const monitorBegin=()=>{};
   const monitorEnd=()=>{};
   node.__h3MonitorCleanup=()=>{};
+  node.__h3ChainCleanup=()=>clearPromptWatch();
 
   line(panel);headline(panel,'VIDEO · BASE PASS');
   r=row(panel);
@@ -619,6 +622,39 @@ function mirror(node) {
     }
   }
   function active(){return Boolean(chainMeta.awaiting||chainMeta.chaining||chainMeta.releasingModels);}
+  function clearPromptWatch(job=null){
+    if(job && chainMeta.watchdog?.job!==job)return;
+    if(chainMeta.watchdog?.timer)clearTimeout(chainMeta.watchdog.timer);
+    chainMeta.watchdog=null;
+  }
+  async function watchPromptCompletion(job){
+    if(!chainRunOwner||pendingJob!==job||!job?.id)return;
+    try{
+      const response=await api.fetchApi('/history/'+encodeURIComponent(job.id));
+      if(response.ok){
+        const history=await response.json();
+        const record=history?.[job.id];
+        const status=record?.status;
+        if(status?.completed){
+          console.info('[H3 Director Chain] history confirmed clip completion:',job.id,status.status_str);
+          completeQueue(status.status_str==='success',job.id);
+          return;
+        }
+      }
+    }catch(error){
+      // A transient history request failure must never stop a valid render.
+      console.debug('[H3 Director Chain] completion watchdog retry:',error);
+    }
+    if(chainRunOwner&&pendingJob===job){
+      const timer=setTimeout(()=>void watchPromptCompletion(job),2000);
+      chainMeta.watchdog={job,timer};
+    }
+  }
+  function startPromptWatch(job){
+    clearPromptWatch();
+    const timer=setTimeout(()=>void watchPromptCompletion(job),2500);
+    chainMeta.watchdog={job,timer};
+  }
   async function queueOnce({randomizeSeed=true}={}){
     if(chainMeta.awaiting)return false;
     if(app.graph!==ownerGraph || ownerGraph?.getNodeById?.(node.id)!==node){
@@ -674,6 +710,7 @@ function mirror(node) {
       console.info(`[H3 Director Chain] queued clip ${expectedIndex}, prompt ${job.id}`);
       const early=job.early.get(job.id);
       if(early!==undefined)completeQueue(early,job.id);
+      else startPromptWatch(job);
       return true;
     }catch(e){
       if(pendingJob===job){pendingJob=null;chainMeta.awaiting=false;chainMeta.chaining=false;chainRunOwner=false;
@@ -690,6 +727,7 @@ function mirror(node) {
     if(!id)return;
     if(!pendingJob.id){pendingJob.early.set(id,ok);return;}
     if(id!==pendingJob.id)return;
+    clearPromptWatch(pendingJob);
     pendingJob=null;
     chainMeta.awaiting=false;monitorEnd(ok);
     const acceptedPass=String(source.render_mode.value)==='Upscale accepted base';
@@ -995,7 +1033,7 @@ app.registerExtension({
     const origRemoved=nodeType.prototype.onRemoved;
     nodeType.prototype.onNodeCreated=function(){const x=origCreated?.apply(this,arguments);mirror(this);return x;};
     nodeType.prototype.onConfigure=function(){const x=origConfigure?.apply(this,arguments);this.__h3studio?.restore();return x;};
-    nodeType.prototype.onRemoved=function(){this.__h3MonitorCleanup?.();return origRemoved?.apply(this,arguments);};
+    nodeType.prototype.onRemoved=function(){this.__h3MonitorCleanup?.();this.__h3ChainCleanup?.();return origRemoved?.apply(this,arguments);};
   },
   loadedGraphNode(node){
     if(node.comfyClass===TYPE||node.type===TYPE){
