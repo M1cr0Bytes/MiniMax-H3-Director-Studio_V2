@@ -235,12 +235,16 @@ function mirror(node) {
   const actions=row(panel);
   const fullRender=button('▶ Generate BASE + Upscale',async()=>{
     if(active()){warning.textContent='A clip is rendering; wait for it to finish.';return;}
+    // The visual V2 switch remembers the user's preferred manual route even
+    // after an accepted upscale temporarily returns the backend to BASE review.
+    node.__h3DirectorManualMode='Final';
     keep('render_mode','Final');
     syncControls();
     await queueOnce();
   },actions,{background:'#5a4478'});
   const renderBase=button('▶ Generate BASE',async()=>{
     if(active()){warning.textContent='A clip is rendering; wait for it to finish.';return;}
+    node.__h3DirectorManualMode='Preview base';
     keep('render_mode','Preview base');
     syncControls();
     await queueOnce();
@@ -737,6 +741,10 @@ function mirror(node) {
         warning.textContent=`Clip ${curr} has no saved BASE latent.`;return false;
       }
       source.clip_index.value=curr+1;expanded=curr;renderShots();refreshStatus();
+      // In manual use, advancing must follow the BASE/FINAL switch rather
+      // than the temporary "Preview base" state set after accepted upscale.
+      const manualMode=node.__h3DirectorManualMode;
+      if(manualMode==='Final'||manualMode==='Preview base')keep('render_mode',manualMode);
       return queueOnce();
     }
     if(action==='Chain'){
@@ -1140,7 +1148,8 @@ app.registerExtension({
     const modeLabel=el('div','h3v2-mode-label');
     const toggle=el('input','h3v2-switch'); toggle.type='checkbox'; toggle.setAttribute('aria-label','Generate BASE or final pass');
     const renderMode=node.widgets?.find(w=>w.name==='render_mode');
-    toggle.checked=String(renderMode?.value??'Preview base')==='Final';
+    node.__h3DirectorManualMode ??= String(renderMode?.value??'Preview base')==='Final'?'Final':'Preview base';
+    toggle.checked=node.__h3DirectorManualMode==='Final';
     const clipNumber=()=>Number(clipSelect.value)||1;
     const updateActionText=()=>{
       modeLabel.textContent=toggle.checked?'GENERATE FINAL':'GENERATE BASE';
@@ -1148,8 +1157,9 @@ app.registerExtension({
     };
     updateActionText();
     toggle.addEventListener('change',()=>{
+      node.__h3DirectorManualMode=toggle.checked?'Final':'Preview base';
       if(renderMode){
-        renderMode.value=toggle.checked?'Final':'Preview base';
+        renderMode.value=node.__h3DirectorManualMode;
         try{renderMode.callback?.(renderMode.value);}catch{}
       }
       updateActionText();
