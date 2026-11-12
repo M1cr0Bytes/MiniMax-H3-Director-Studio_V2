@@ -4,6 +4,8 @@ H3 Director Studio is a ComfyUI node for planning and rendering MiniMax H3 video
 
 The repository contains the Director node and a clean, pinned reference workflow. It does **not** bundle MiniMax H3 models, LoRAs, third-party custom nodes, reference files, audio, generated videos, or personal prompts.
 
+> **Required for the supplied workflow: [ComfyUI-Pixaroma](https://gitlab.com/pixaroma/comfyui-pixaroma).** It provides the visible run-timer node. Install it before loading the workflow, alongside the other dependencies below.
+
 ## Workflow running
 
 ![H3 Director Studio V2 running in ComfyUI](assets/H3_Director_Studio_V2_running.png)
