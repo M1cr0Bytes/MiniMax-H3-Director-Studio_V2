@@ -67,6 +67,9 @@ const S = {
 };
 function decode(raw) {
   const text = String(raw ?? '');
+  // A clean preset has no segments yet; show the normal empty segment editor,
+  // not the raw-text recovery panel.
+  if (!text.trim()) return [];
   const matches = [...text.matchAll(HEADER)];
   if (!matches.length || text.slice(0,matches[0].index).trim()) return null;
   const shots=[];
