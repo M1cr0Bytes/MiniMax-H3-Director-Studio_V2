@@ -1,0 +1,1533 @@
+{
+  "id": "cf07d64f-ac96-47d4-af5a-1dadea5e153c",
+  "revision": 0,
+  "last_node_id": 217,
+  "last_link_id": 405,
+  "nodes": [
+    {
+      "id": 66,
+      "type": "VAELoader",
+      "pos": [
+        811.2027782176261,
+        540.0459827788062
+      ],
+      "size": [
+        286.27866070055745,
+        105.3385291960285
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            327
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — AUDIO VAE",
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_audio_vae_fp32.safetensors",
+            "directory": "vae",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 118,
+      "type": "Lora Loader Stack (rgthree)",
+      "pos": [
+        991.1547070418409,
+        689.8736053753242
+      ],
+      "size": [
+        391.94046401457217,
+        246
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 400
+        },
+        {
+          "label": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 373
+        },
+        {
+          "label": "lora_01",
+          "name": "lora_01",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_01"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_01",
+          "name": "strength_01",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_01"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_02",
+          "name": "lora_02",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_02"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_02",
+          "name": "strength_02",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_02"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_03",
+          "name": "lora_03",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_03"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_03",
+          "name": "strength_03",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_03"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_04",
+          "name": "lora_04",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_04"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_04",
+          "name": "strength_04",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_04"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            392,
+            401
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            323
+          ]
+        }
+      ],
+      "title": "BASE — TURBO & ADDITIONAL LoRAs",
+      "properties": {
+        "Node name for S&R": "Lora Loader Stack (rgthree)",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        0,
+        "h3-realism-people-t2v-i2v-r2v.safetensors",
+        0.8,
+        "KNP_000003000.safetensors",
+        0,
+        "MysticXXX_MMH3-V4-ref2va.safetensors",
+        0
+      ],
+      "widgets_values_named": {
+        "lora_01": "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        "strength_01": 0,
+        "lora_02": "h3-realism-people-t2v-i2v-r2v.safetensors",
+        "strength_02": 0.8,
+        "lora_03": "KNP_000003000.safetensors",
+        "strength_03": 0,
+        "lora_04": "MysticXXX_MMH3-V4-ref2va.safetensors",
+        "strength_04": 0
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29"
+    },
+    {
+      "id": 65,
+      "type": "VAELoader",
+      "pos": [
+        523.1878136621381,
+        540.9586602206455
+      ],
+      "size": [
+        282.4099504929319,
+        104.73931876566485
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            326,
+            391
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — VIDEO VAE",
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_video_vae_fp16.safetensors",
+            "directory": "vae",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_int8_convrot.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 69,
+      "type": "UNETLoader",
+      "pos": [
+        524.3169528263164,
+        692.3302951139128
+      ],
+      "size": [
+        455.1826281162312,
+        98.70945489396865
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "label": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            400
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — MODEL LOADER",
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "directory": "diffusion_models",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "10Eros_Max_h3_TURBO-hybrid_beta5_int8.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "10Eros_Max_h3_TURBO-hybrid_beta5_int8.safetensors",
+        "weight_dtype": "default"
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29"
+    },
+    {
+      "id": 145,
+      "type": "DenoMiniMaxH3ReferenceImageLoader",
+      "pos": [
+        522.3055758990334,
+        -1.977777116434567
+      ],
+      "size": [
+        861.8840824818603,
+        497.48618421393115
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "ref_images",
+          "type": "DENO_MINIMAX_H3_REFERENCE_IMAGES",
+          "links": [
+            328
+          ]
+        },
+        {
+          "name": "image_list",
+          "shape": 6,
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "label": "Audio 1",
+          "name": "audio_1",
+          "type": "AUDIO",
+          "links": null
+        }
+      ],
+      "title": "H3 REFERENCES — IMAGE LOADER",
+      "properties": {
+        "Node name for S&R": "DenoMiniMaxH3ReferenceImageLoader",
+        "denoH3ReferenceLoaderLayoutVersion": 1,
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "image_paths": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "deno-custom-nodes",
+        "ver": "0.7.74",
+        "denoH3AudioOpen": true
+      },
+      "widgets_values": [
+        "",
+        "",
+        "[]",
+        ""
+      ],
+      "widgets_values_named": {
+        "image_paths": "",
+        "disabled_image_paths": "",
+        "audio_sources": "[]",
+        "loader_panel": ""
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 176,
+      "type": "H3DirectorStudioV1",
+      "pos": [
+        1812.034065811176,
+        -3.416460653863777
+      ],
+      "size": [
+        1219.167515214805,
+        1764.1613655419153
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "base_model",
+          "type": "MODEL",
+          "link": 397
+        },
+        {
+          "name": "base_clip",
+          "type": "CLIP",
+          "link": 323
+        },
+        {
+          "name": "upscale_model",
+          "type": "MODEL",
+          "link": 405
+        },
+        {
+          "name": "upscale_clip",
+          "type": "CLIP",
+          "link": 342
+        },
+        {
+          "name": "video_vae",
+          "type": "VAE",
+          "link": 326
+        },
+        {
+          "name": "audio_vae",
+          "type": "VAE",
+          "link": 327
+        },
+        {
+          "name": "ref_images",
+          "shape": 7,
+          "type": "DENO_MINIMAX_H3_REFERENCE_IMAGES",
+          "link": 328
+        },
+        {
+          "name": "ref_video_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_video_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "render_status",
+          "type": "STRING",
+          "pos": [
+            1220.167515214805,
+            45
+          ],
+          "slot_index": 0,
+          "links": null
+        },
+        {
+          "name": "video_frames",
+          "type": "IMAGE",
+          "pos": [
+            1220.167515214805,
+            67
+          ],
+          "slot_index": 1,
+          "links": [
+            346
+          ]
+        },
+        {
+          "name": "video_audio",
+          "type": "AUDIO",
+          "pos": [
+            1220.167515214805,
+            89
+          ],
+          "slot_index": 2,
+          "links": [
+            347
+          ]
+        }
+      ],
+      "title": "H3 DIRECTOR STUDIO V2",
+      "properties": {
+        "Image Studio": "v18",
+        "Node name for S&R": "H3DirectorStudioV5",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "general_prompt": true,
+            "segments_text": true,
+            "project_key": true,
+            "production_mode": true,
+            "render_mode": true,
+            "duration_s": true,
+            "ratio": true,
+            "megapixels": true,
+            "base_steps": true,
+            "refine_steps": true,
+            "upscale_multiplier": true,
+            "seed": true,
+            "seed_mode": true,
+            "motion_load_node_id": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "",
+        "",
+        "H3_Director_Demo",
+        "Chain",
+        "Preview base",
+        10,
+        "9:16 (Portrait Widescreen)",
+        0.2,
+        8,
+        4,
+        2,
+        1,
+        0,
+        "randomize",
+        "res_multistep",
+        "simple",
+        "res_multistep",
+        "simple",
+        "minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors",
+        0.35
+      ],
+      "widgets_values_named": {
+        "general_prompt": "",
+        "segments_text": "",
+        "project_key": "H3_Director_Demo",
+        "production_mode": "Chain",
+        "render_mode": "Preview base",
+        "duration_s": 10,
+        "ratio": "9:16 (Portrait Widescreen)",
+        "megapixels": 0.2,
+        "base_steps": 8,
+        "refine_steps": 4,
+        "upscale_multiplier": 2,
+        "clip_index": 1,
+        "h3_rng_value": 0,
+        "seed_mode": "randomize",
+        "base_sampler": "res_multistep",
+        "base_scheduler": "simple",
+        "upscale_sampler": "res_multistep",
+        "upscale_scheduler": "simple",
+        "upscaler_model": "minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors",
+        "refine_denoise": 0.35
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 179,
+      "type": "Lora Loader Stack (rgthree)",
+      "pos": [
+        991.3395978861552,
+        978.318434246334
+      ],
+      "size": [
+        392.7733066774207,
+        246
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 403
+        },
+        {
+          "label": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 372
+        },
+        {
+          "label": "lora_01",
+          "name": "lora_01",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_01"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_01",
+          "name": "strength_01",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_01"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_02",
+          "name": "lora_02",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_02"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_02",
+          "name": "strength_02",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_02"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_03",
+          "name": "lora_03",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_03"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_03",
+          "name": "strength_03",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_03"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_04",
+          "name": "lora_04",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_04"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_04",
+          "name": "strength_04",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_04"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            404
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            342
+          ]
+        }
+      ],
+      "title": "UPSCALE — TURBO & ENHANCEMENT LoRAs",
+      "properties": {
+        "Node name for S&R": "Lora Loader Stack (rgthree)",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "ttNbgOverride": {
+          "bgcolor": "#60391F",
+          "groupcolor": "#D38E40",
+          "color": "#74451D"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_DMAD_4step_full_lora_avg_rank_39_bf16.safetensors",
+        0.5,
+        "Restore_Enhance_Improve_rank16_v1_H3-lora.safetensors",
+        0.6,
+        "loracinematografico08.safetensors",
+        0.6,
+        "MysticXXX_MMH3-V4-ref2va.safetensors",
+        0
+      ],
+      "widgets_values_named": {
+        "lora_01": "minimax_h3_DMAD_4step_full_lora_avg_rank_39_bf16.safetensors",
+        "strength_01": 0.5,
+        "lora_02": "Restore_Enhance_Improve_rank16_v1_H3-lora.safetensors",
+        "strength_02": 0.6,
+        "lora_03": "loracinematografico08.safetensors",
+        "strength_03": 0.6,
+        "lora_04": "MysticXXX_MMH3-V4-ref2va.safetensors",
+        "strength_04": 0
+      },
+      "color": "#cf2a2a",
+      "bgcolor": "#3e2525"
+    },
+    {
+      "id": 189,
+      "type": "PixaromaRunTimer",
+      "pos": [
+        723.9362208321938,
+        1249.8420426198702
+      ],
+      "size": [
+        553,
+        199
+      ],
+      "flags": {
+        "no_title": true
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "RENDER TIMER",
+      "properties": {
+        "Node name for S&R": "PixaromaRunTimer",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "runTimerLastMs": 234664.80000000075,
+        "runTimerState": {
+          "version": 1,
+          "color": "#22d3ee",
+          "decimals": 0,
+          "font": "Roboto",
+          "chime": false,
+          "sound": "",
+          "volume": 70
+        },
+        "pixAccent": "#0891b2"
+      },
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 191,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        3047.5483519839304,
+        -1.717997308146674
+      ],
+      "size": [
+        513.6120431179334,
+        1200.6026199309758
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 346
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 347
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "slot_index": 0,
+          "links": null
+        }
+      ],
+      "title": "H3 VIDEO OUTPUT — BASE AUDIO PRESERVED (24 FPS)",
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 24,
+        "loop_count": 0,
+        "filename_prefix": "H3_Director_Demo/H3_clip",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": 19,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true
+      },
+      "widgets_values_named": {
+        "frame_rate": 24,
+        "loop_count": 0,
+        "filename_prefix": "H3_Director_Demo/H3_clip",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": 19,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 193,
+      "type": "ModelAttentionBackend",
+      "pos": [
+        534.7640899674352,
+        840.7543344246466
+      ],
+      "size": [
+        453.43133150396716,
+        96.60205592854118
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 401
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            402
+          ]
+        }
+      ],
+      "title": "UPSCALE ONLY — ATTENTION BACKEND",
+      "properties": {
+        "Node name for S&R": "ModelAttentionBackend",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "comfy kitchen attention"
+      ],
+      "widgets_values_named": {
+        "attention": "comfy kitchen attention"
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29"
+    },
+    {
+      "id": 202,
+      "type": "UNETLoader",
+      "pos": [
+        527.8448991472948,
+        979.266807804958
+      ],
+      "size": [
+        456.1476625064363,
+        115.1152339046954
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "label": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            403
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — MODEL LOADER",
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "10Eros_Max_h3_fl2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "10Eros_Max_h3_fl2va_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      },
+      "color": "#cf2a2a",
+      "bgcolor": "#3e2525"
+    },
+    {
+      "id": 203,
+      "type": "ModelAttentionBackend",
+      "pos": [
+        528.9433780970749,
+        1137.1323783714113
+      ],
+      "size": [
+        456.326337485964,
+        88.8818294012085
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 404
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            405
+          ]
+        }
+      ],
+      "title": "UPSCALE ONLY — ATTENTION BACKEND",
+      "properties": {
+        "Node name for S&R": "ModelAttentionBackend",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "comfy kitchen attention"
+      ],
+      "widgets_values_named": {
+        "attention": "comfy kitchen attention"
+      },
+      "color": "#cf2a2a",
+      "bgcolor": "#3e2525"
+    },
+    {
+      "id": 205,
+      "type": "CLIPLoader",
+      "pos": [
+        1101.5837420411222,
+        539.0235542626488
+      ],
+      "size": [
+        280.0661895974333,
+        106
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip_name",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          },
+          "link": null
+        },
+        {
+          "label": "type",
+          "name": "type",
+          "type": "COMBO",
+          "widget": {
+            "name": "type"
+          },
+          "link": null
+        },
+        {
+          "label": "device",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            372,
+            373
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — TEXT ENCODER",
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 214,
+      "type": "SpectrumApplyMiniMaxH3",
+      "pos": [
+        1397.3474227641434,
+        649.4813105828088
+      ],
+      "size": [
+        390.76658567524123,
+        658
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 402
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            397
+          ]
+        }
+      ],
+      "title": "SPECTRUM ONLY BASE 25 STEPS",
+      "properties": {
+        "Node name for S&R": "SpectrumApplyMiniMaxH3",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        true,
+        0.5,
+        1,
+        0.1,
+        2,
+        0.75,
+        1,
+        1,
+        8,
+        false,
+        "system_ram",
+        true,
+        false,
+        false,
+        true,
+        0,
+        "system_ram",
+        "off",
+        0.65,
+        false,
+        false,
+        "coordinate_rls",
+        "hard_clip",
+        0.4,
+        "no_attenuation",
+        "balanced"
+      ],
+      "widgets_values_named": {
+        "enabled": true,
+        "blend_weight": 0.5,
+        "degree": 1,
+        "ridge_lambda": 0.1,
+        "window_size": 2,
+        "flex_window": 0.75,
+        "warmup_steps": 1,
+        "tail_actual_steps": 1,
+        "max_history": 8,
+        "debug": false,
+        "history_storage": "system_ram",
+        "bootstrap_first_forecast": true,
+        "anchor_residual_feedback": false,
+        "selective_rollback_correction": false,
+        "offline_smoothing_replay": true,
+        "audio_blend_weight": 0,
+        "offline_archive_storage": "system_ram",
+        "model_aware_mode": "off",
+        "model_aware_risk_threshold": 0.65,
+        "model_aware_trust_shrinkage": false,
+        "model_aware_replay_generic_correction": false,
+        "generic_correction_mode": "coordinate_rls",
+        "generic_correction_limiter": "hard_clip",
+        "generic_correction_limit": 0.4,
+        "generic_correction_attenuation": "no_attenuation",
+        "sa_pece_forecast_policy": "balanced"
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29",
+      "shape": 2
+    },
+    {
+      "id": 216,
+      "type": "ModelPreviewOverrideKJ",
+      "pos": [
+        1395.8158299113081,
+        0.3180156646424661
+      ],
+      "size": [
+        402.8950545763064,
+        593.4128863079598
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 392
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 391
+        },
+        {
+          "name": "audio_vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": []
+        }
+      ],
+      "title": "PREVIEW BASE",
+      "properties": {
+        "Node name for S&R": "ModelPreviewOverrideKJ",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "996b010ae4613ae0743121ace5975830dcf8e6af",
+        "kjPovPanelH": 146
+      },
+      "widgets_values": [
+        0,
+        80,
+        true,
+        48,
+        24,
+        "taeh3.safetensors",
+        ""
+      ],
+      "widgets_values_named": {
+        "max_resolution": 0,
+        "jpeg_quality": 80,
+        "suppress_default_preview": true,
+        "preview_frames": 48,
+        "preview_fps": 24,
+        "tiny_vae": "taeh3.safetensors",
+        "preview": ""
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 217,
+      "type": "MarkdownNote",
+      "title": "README · Models, dependencies & quick use",
+      "pos": [
+        520,
+        -470
+      ],
+      "size": [
+        1215,
+        430
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "# H3 DIRECTOR STUDIO V2 — READ FIRST\n\n## Required runtime\n- [ComfyUI](https://github.com/Comfy-Org/ComfyUI) with native MiniMax H3 support\n- [H3 Motion Context](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context)\n- [OBVPM Timeline](https://github.com/chanon/comfyui-obvpm-timeline)\n- A compatible MiniMax H3 3D latent upscaler provider\n\n## Included workflow extras\n- [Deno custom nodes](https://github.com/Deno2026/comfyui-deno-custom-nodes) — image/audio reference loader\n- [rgthree-comfy](https://github.com/rgthree/rgthree-comfy) — BASE and UPSCALE LoRA stacks\n- [ComfyUI-Spectrum-MiniMax-H3](https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3) — BASE only\n- [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) — optional BASE preview\n- [ComfyUI-VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite) — final MP4 output\n\n## Recommended files shown in this preset\n- **BASE:** `10Eros_Max_h3_TURBO-hybrid_beta5_int8.safetensors`\n- **UPSCALE:** `10Eros_Max_h3_fl2va_pruned_int8_convrot.safetensors`\n- **Video VAE:** `minimax_h3_video_vae_int8_convrot.safetensors`\n- **Audio VAE:** `minimax_h3_audio_vae_fp32.safetensors`\n- **Text Encoder:** `qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors`\n- [10Eros-Max model collection](https://huggingface.co/TenStrip/10Eros-Max)\n\n## Quick use\n1. Add image/audio references, a global prompt and one prompt per segment.\n2. **Generate BASE** to review a single clip, then **Keep BASE → Upscale**.\n3. Use **Run Chain** to continue from the active clip; it advances automatically.\n4. `Seed behavior: Randomize` creates a new seed per BASE generation. Use **Lock current seed** only to reproduce one.\n\nSpectrum is wired **only to BASE**. Use it with non-Turbo BASE at about 25 steps; keep it out of the 3D latent upscale branch.\n"
+      ]
+    }
+  ],
+  "links": [
+    [
+      323,
+      118,
+      1,
+      176,
+      1,
+      "CLIP"
+    ],
+    [
+      326,
+      65,
+      0,
+      176,
+      4,
+      "VAE"
+    ],
+    [
+      327,
+      66,
+      0,
+      176,
+      5,
+      "VAE"
+    ],
+    [
+      328,
+      145,
+      0,
+      176,
+      6,
+      "DENO_MINIMAX_H3_REFERENCE_IMAGES"
+    ],
+    [
+      342,
+      179,
+      1,
+      176,
+      3,
+      "CLIP"
+    ],
+    [
+      346,
+      176,
+      1,
+      191,
+      0,
+      "IMAGE"
+    ],
+    [
+      347,
+      176,
+      2,
+      191,
+      1,
+      "AUDIO"
+    ],
+    [
+      372,
+      205,
+      0,
+      179,
+      1,
+      "CLIP"
+    ],
+    [
+      373,
+      205,
+      0,
+      118,
+      1,
+      "CLIP"
+    ],
+    [
+      391,
+      65,
+      0,
+      216,
+      1,
+      "VAE"
+    ],
+    [
+      392,
+      118,
+      0,
+      216,
+      0,
+      "MODEL"
+    ],
+    [
+      397,
+      214,
+      0,
+      176,
+      0,
+      "MODEL"
+    ],
+    [
+      400,
+      69,
+      0,
+      118,
+      0,
+      "MODEL"
+    ],
+    [
+      401,
+      118,
+      0,
+      193,
+      0,
+      "MODEL"
+    ],
+    [
+      402,
+      193,
+      0,
+      214,
+      0,
+      "MODEL"
+    ],
+    [
+      403,
+      202,
+      0,
+      179,
+      0,
+      "MODEL"
+    ],
+    [
+      404,
+      179,
+      0,
+      203,
+      0,
+      "MODEL"
+    ],
+    [
+      405,
+      203,
+      0,
+      176,
+      2,
+      "MODEL"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "links_added_by_ue": [],
+    "KKvideo_latentpreview": false,
+    "0246.VERSION": [
+      0,
+      0,
+      4
+    ],
+    "VHS_latentpreview": false,
+    "ds": {
+      "scale": 0.24212397712971814,
+      "offset": [
+        -2038.891642085492,
+        547.1842835114154
+      ]
+    },
+    "VHS_KeepIntermediate": true,
+    "ue_links": [],
+    "KKvideo_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_latentpreviewrate": 0,
+    "frontendVersion": "1.57.6"
+  },
+  "extensions": {
+    "seed_widgets": {}
+  },
+  "version": 0.4
+}
