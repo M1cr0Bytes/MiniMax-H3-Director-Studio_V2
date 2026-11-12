@@ -1,5 +1,9 @@
 # Dependencies
 
+## Required to open the supplied workflow
+
+**[ComfyUI-Pixaroma](https://gitlab.com/pixaroma/comfyui-pixaroma) is required.** The workflow contains its Run Timer node. Install Pixaroma before opening the workflow; otherwise ComfyUI will show a missing-node placeholder. It is not bundled with H3 Director Studio.
+
 ## Director runtime
 
 These components are required for the Director to execute its native H3 BASE, continuity and 3D latent-upscale paths.
@@ -23,7 +27,6 @@ The supplied workflow opens unchanged when these packages are installed. They ar
 | [rgthree-comfy](https://github.com/rgthree/rgthree-comfy) | BASE and Upscale LoRA stacks. | Yes |
 | [ComfyUI-Spectrum-MiniMax-H3](https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3) | Spectrum acceleration in BASE only. | Yes |
 | [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) | Optional BASE preview. | Yes; remove or bypass if unused. |
-| [ComfyUI-Pixaroma](https://gitlab.com/pixaroma/comfyui-pixaroma) | Run timer / presentation utility. | Yes; remove if unused. |
 | [VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite) | Final MP4 muxing and output. | Yes |
 
 ## Models and LoRAs
