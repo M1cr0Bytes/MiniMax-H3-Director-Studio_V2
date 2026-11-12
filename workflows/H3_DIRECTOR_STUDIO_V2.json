@@ -1,0 +1,1605 @@
+Warning: truncated output (original token count: 34311)
+Total output lines: 1610
+
+{
+  "id": "ae3d5660-55f0-400b-9f1f-17fdc5bc9662",
+  "revision": 0,
+  "last_node_id": 217,
+  "last_link_id": 407,
+  "nodes": [
+    {
+      "id": 66,
+      "type": "VAELoader",
+      "pos": [
+        811.2027782176261,
+        540.0459827788062
+      ],
+      "size": [
+        286.27866070055745,
+        105.3385291960285
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            327
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — AUDIO VAE",
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_audio_vae_fp32.safetensors",
+            "directory": "vae",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 118,
+      "type": "Lora Loader Stack (rgthree)",
+      "pos": [
+        991.1547070418409,
+        689.8736053753242
+      ],
+      "size": [
+        391.94046401457217,
+        246
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 400
+        },
+        {
+          "label": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 373
+        },
+        {
+          "label": "lora_01",
+          "name": "lora_01",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_01"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_01",
+          "name": "strength_01",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_01"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_02",
+          "name": "lora_02",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_02"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_02",
+          "name": "strength_02",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_02"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_03",
+          "name": "lora_03",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_03"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_03",
+          "name": "strength_03",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_03"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_04",
+          "name": "lora_04",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_04"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_04",
+          "name": "strength_04",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_04"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            401
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            323
+          ]
+        }
+      ],
+      "title": "BASE — TURBO & ADDITIONAL LoRAs",
+      "properties": {
+        "Node name for S&R": "Lora Loader Stack (rgthree)",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        1,
+        "h3-realism-people-t2v-i2v-r2v.safetensors",
+        0.8,
+        "KNP_000003000.safetensors",
+        0,
+        "MysticXXX_MMH3-V4-ref2va.safetensors",
+        0
+      ],
+      "widgets_values_named": {
+        "lora_01": "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        "strength_01": 1,
+        "lora_02": "h3-realism-people-t2v-i2v-r2v.safetensors",
+        "strength_02": 0.8,
+        "lora_03": "KNP_000003000.safetensors",
+        "strength_03": 0,
+        "lora_04": "MysticXXX_MMH3-V4-ref2va.safetensors",
+        "strength_04": 0
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29"
+    },
+    {
+      "id": 65,
+      "type": "VAELoader",
+      "pos": [
+        523.1878136621381,
+        540.9586602206455
+      ],
+      "size": [
+        282.4099504929319,
+        104.73931876566485
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            326,
+            391
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — VIDEO VAE",
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_video_vae_fp16.safetensors",
+            "directory": "vae",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_int8_convrot.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 69,
+      "type": "UNETLoader",
+      "pos": [
+        524.3169528263164,
+        692.3302951139128
+      ],
+      "size": [
+        455.1826281162312,
+        98.70945489396865
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "label": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            400
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — MODEL LOADER",
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "directory_invalid": true,
+            "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "directory": "diffusion_models",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "Minimax-h3_Singularity_ref2va_v1.3_Pruned_w4a8.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "Minimax-h3_Singularity_ref2va_v1.3_Pruned_w4a8.safetensors",
+        "weight_dtype": "default"
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29"
+    },
+    {
+      "id": 145,
+      "type": "DenoMiniMaxH3ReferenceImageLoader",
+      "pos": [
+        522.3055758990334,
+        -1.977777116434567
+      ],
+      "size": [
+        861.8840824818603,
+        497.48618421393115
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "ref_images",
+          "type": "DENO_MINIMAX_H3_REFERENCE_IMAGES",
+          "links": [
+            328
+          ]
+        },
+        {
+          "name": "image_list",
+          "shape": 6,
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "title": "H3 REFERENCES — IMAGE LOADER",
+      "properties": {
+        "Node name for S&R": "DenoMiniMaxH3ReferenceImageLoader",
+        "denoH3ReferenceLoaderLayoutVersion": 1,
+        "denoH3AudioOutputIds": [],
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "image_paths": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "deno-custom-nodes",
+        "ver": "0.7.74",
+        "denoH3AudioOpen": true
+      },
+      "widgets_values": [
+        "",
+        "",
+        "[]",
+        ""
+      ],
+      "widgets_values_named": {
+        "image_paths": "edita_esta_imagen_el_piercing_de.png\nHoja_de_dise_o_de_personajes_ort (2).png",
+        "disabled_image_paths": "",
+        "audio_sources": "[]",
+        "loader_panel": ""
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 176,
+      "type": "H3DirectorStudioV1",
+      "pos": [
+        1827.4750048089352,
+        -14.997140605028356
+      ],
+      "size": [
+        1219.167515214805,
+        1764.1613655419155
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "base_model",
+          "type": "MODEL",
+          "link": 407
+        },
+        {
+          "name": "base_clip",
+          "type": "CLIP",
+          "link": 323
+        },
+        {
+          "name": "upscale_model",
+          "type": "MODEL",
+          "link": 405
+        },
+        {
+          "name": "upscale_clip",
+          "type": "CLIP",
+          "link": 342
+        },
+        {
+          "name": "video_vae",
+          "type": "VAE",
+          "link": 326
+        },
+        {
+          "name": "audio_vae",
+          "type": "VAE",
+          "link": 327
+        },
+        {
+          "name": "ref_images",
+          "shape": 7,
+          "type": "DENO_MINIMAX_H3_REFERENCE_IMAGES",
+          "link": 328
+        },
+        {
+          "name": "ref_video_0",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "ref_video_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "ref_audio_0",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "render_status",
+          "type": "STRING",
+          "pos": [
+            1220.167515214805,
+            45
+          ],
+          "slot_index": 0,
+          "links": null
+        },
+        {
+          "name": "video_frames",
+          "type": "IMAGE",
+          "pos": [
+            1220.167515214805,
+            67
+          ],
+          "slot_index": 1,
+          "links": [
+            346
+          ]
+        },
+        {
+          "name": "video_audio",
+          "type": "AUDIO",
+          "pos": [
+            1220.167515214805,
+            89
+          ],
+          "slot_index": 2,
+          "links": [
+            347
+          ]
+        }
+      ],
+      "title": "H3 DIRECTOR STUDIO V2",
+      "properties": {
+        "Image Studio": "v18",
+        "Node name for S&R": "H3DirectorStudioV5",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "general_prompt": true,
+            "segments_text": true,
+            "project_key": true,
+            "production_mode": true,
+            "render_mode": true,
+            "duration_s": true,
+            "ratio": true,
+            "megapixels": true,
+            "base_steps": true,
+            "refine_steps": true,
+            "upscale_multiplier": true,
+            "seed": true,
+            "seed_mode": true,
+            "motion_load_node_id": true
+          },
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "",
+        "",
+        "h3_director_project",
+        "Chain",
+        "Final",
+        8,
+        "9:16 (Portrait Widescreen)",
+        0.3,
+        8,
+        4,
+        2,
+        3,
+        8108702980785180,
+        0,
+        "randomize",
+        "simple",
+        "res_multistep",
+        "simple",
+        "minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors",
+        0.35
+      ],
+      "widgets_values_named": {
+        "general_prompt": "r34l1sm, facial realism\n\nSubject Definitions:\n<Subject 1> is a young woman whose face is based on <Image 1> and whose body is based on <Image 2>. She has short, black hair with bangs and sports large, decorative tattoos on her left cheek and neck. She wears round, dark-rimmed glasses. In this scene, she is dressed in a black, loose-fitting Adidas hoodie with pink accents—including the brand’s signature stripes on the sleeves—paired with matching slimfit cotton sweatpants. She is wearing fuchsia-pink Adidas sneakers.\n<Subject 2> is a friend of <Subject 1> who appears only as a voice during a phone call.\n<Audio 1> is the voice-timbre and delivery reference for <Subject 1> (S1). It guides only her vocal identity, natural pacing, intonation, and emotional delivery. Her newly generated dialogue is captured by the camera inside the moving bus, with the natural acoustic character of the cabin.\n\nThe character remains naturally integrated into the environment throughout the entire shot. Her face, body, hair, clothing and accessories consistently respond to the same lighting, perspective, motion and exposure as the surrounding scene. Natural human movement, subtle breathing, realistic facial motion, natural weight shifts, relaxed confident posture, physically believable body movement, realistic hair inertia and fabric motion. Accurate contact shadows, natural occlusion, believable interaction with nearby surfaces and objects, consistent scale and perspective during movement. Maintain the same facial identity, body proportions, hairstyle, tattoos, piercings and wardrobe throughout the video. No facial drift, no morphing, no body deformation, no sudden changes in anatomy, no unstable clothing, no unnatural motion transitions.\n\nsummary:\n[reference generation] The target video features <Subject 1> sitting on a bus at night in a glowing futuristic city. She is engaged in a comedic phone conversation with <Subject 2> while looking toward the camera as it captures her from a diagonal angle from the bus aisle.\n\nretention_analysis:\n<Subject 1> (appears in [Shot 1]): fully_preserved - the facial features from <Picture 1>, the body structure from <Picture 2>, and the specific tattoo details are retained.\n<Audio 1>: reference - preserve only its vocal timbre, pacing, intonation, and emotional delivery for <Subject 1>'s newly generated dialogue. The target speech is acoustically integrated into the moving bus cabin rather than reusing the source recording.\n\n\n\n\n\nDetailed description:\nPhotorealistic live-action footage, captured with a natural, handheld camera style; consistent photographic perspective throughout the shot; realistic lens behavior; natural depth of field; steady focus; natural motion blur; realistic exposure adaptation; subtle focus variation (“focus breathing”); natural white balance; consistent dynamic range; physically consistent lighting throughout the shot; natural highlight roll-off; consistent image processing between the subject and the background; credible spatial depth; natural camera movement; stable scene geometry; fluid temporal consistency.\n\n\n",
+        "segments_text": "[SEGMENT 1]\n[Shot 1] The camera, in a fixed, slightly diagonal position, frames <Subject 1> from the waist up; she fills the entire frame. She is seated in the second-to-last row, next to the window, wearing a loose-fitting black sweatshirt with pink accents, paired with matching slim-fit cotton sweatpants. Her tattooed face and round-rimmed glasses are clearly visible as she holds a mobile phone to her ear. Flashes of colored lights and neon signs from a futuristic city sweep across the interior of the bus through the window.\n\nTwo distinct ringtones sound, followed by the subtle click that signals a call has been connected. <Subject 1> (S1) smiles broadly and responds in a cheerful, lively tone, using the natural vocal quality established as a reference in <Audio 1>: <d>[English] What’s up, bitch? How are you?</d>\n\nThe person on the other end (S2)—who is not on screen—replies over the phone; the sound is slightly muffled, as is typical for a phone call: <d>[English] Good. Why do you sound suspiciously happy?</d>\n\n<Subject 1> (S1) lets out a short laugh. Their eyes widen with playful anticipation as they lean slightly toward the window and say, in a mischievous and amusing tone: <d>[English] Well, maybe I got a couple of new piercings yesterday....</d>—then they cover their mouth with their hand and chuckle softly.\n\nThe person on the other end (S2) responds, through the phone’s speaker, with a tone of surprise and sarcasm: (S2) <d>[English] A couple? Like with men... two at a time, right bitch?</d>\n<Subject 1> reacts with a comical expression, her mouth falling open slightly before she bursts into a warm laugh at the remark. general_soundscape:\nThe low hum of the bus engine, the gentle rattling of the vehicle’s body, and the distant rhythm of city traffic heard through the windows.\n\n\n\n\noverall_soundscape:\nThe low hum of a bus engine, the muffled rattling of the chassis, and the distant, rhythmic whoosh of city traffic outside the windows.\n\nnon_diegetic_music:\nN/A\n\n[SEGMENT 2]\n[Shot 1] The camera remains in a fixed, diagonal position relative to the bus’s central aisle, framing <Subject 1> (S1), who is seated in the second-to-last row, next to the window. Flashes of colored lights and neon signs from a futuristic city sweep across the bus interior through the window.\n<Subject 1> (S1) leans slightly toward the camera with a mischievous, self-assured expression while talking on the phone. She looks toward the lens with a faint smile and bright, lively eyes. In a conciliatory tone, <Subject 1> (S1) says: <d>[English] Relax. They’re adorable. I’ll show them to you when I get to work.</d> As she speaks, she makes a small, playful gesture with her hand near her face.\n\nThen, the voice of <Subject 2> (S2) is heard, carrying the characteristic muffled quality of a phone call. <Subject 2> (S2) asks, sounding concerned: <d>[English] And where did you get them done? I fear the worst...</d>\n\n<Subject 1> (S1) lets out a mischievous chuckle and glances toward the window; her expression turns conspiratorial as she replies enigmatically: <d>[English] Somewhere my neighbor—who is super hot—won’t see them when I ask him for some salt.</d> She rolls her eyes playfully and tilts her head.\n\n<Subject 2> (S2) responds over the phone in a quick, cheeky tone: <d>[English] You little devil! I bet you’ll end up showing them anyway.\n\nSubject 1 (S1) laughs at the comment, tilting their head back slightly while looking at the camera with a teasing, “guilty” expression—their eyes sparkling with amusement.\n\nGeneral soundscape:\nThe low hum of a bus engine, the muffled rattling of the chassis, and the rhythmic, distant murmur of city traffic beyond the windows.\n\nExtradiegetic music:\nN/A\n\n[SEGMENT 3]\nDetailed description:\nThe video in question concludes with a stylistic transition typical of comedy series.\n[Shot 1] At the 3-second mark, the scene begins with a quick fade to black and The text \"A FEW MOMENTS LATER...\" appears in the center of the screen—with the first word at the top and the rest below—rendered in a striking, vibrant fuchsia-pink typeface adorned with rhinestones. Simultaneously, a male voice-over, delivered in a humorous and slightly high-pitched tone, speaks the phrase:  (s3) <d> [english]«A few moments later...<d/>.\nThe text remains static while the voice finishes the line, maintaining the dry, humorous tone characteristic of transitions in sitcoms.\n\n[Shot 2] At the 7-second mark, the text gradually fades out until it disappears.",
+        "project_key": "BAILE",
+        "production_mode": "Chain",
+        "render_mode": "Final",
+        "duration_s": 8,
+        "ratio": "9:16 (Portrait Widescreen)",
+        "megapixels": 0.3,
+        "base_steps": 8,
+        "refine_steps": 4,
+        "upscale_multiplier": 2,
+        "clip_index": 3,
+        "h3_rng_value": 8108702980785180,
+        "seed_mode": "randomize",
+        "base_sampler": "res_multistep",
+        "base_scheduler": "simple",
+        "upscale_sampler": "res_multistep",
+        "upscale_scheduler": "simple",
+        "upscaler_model": "minimax_h3_latent_upscaler_3d_conv_v1_fp16.safetensors",
+        "refine_denoise": 0.35
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 179,
+      "type": "Lora Loader Stack (rgthree)",
+      "pos": [
+        991.3395978861552,
+        978.318434246334
+      ],
+      "size": [
+        392.7733066774207,
+        246
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 403
+        },
+        {
+          "label": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 372
+        },
+        {
+          "label": "lora_01",
+          "name": "lora_01",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_01"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_01",
+          "name": "strength_01",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_01"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_02",
+          "name": "lora_02",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_02"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_02",
+          "name": "strength_02",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_02"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_03",
+          "name": "lora_03",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_03"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_03",
+          "name": "strength_03",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_03"
+          },
+          "link": null
+        },
+        {
+          "label": "lora_04",
+          "name": "lora_04",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_04"
+          },
+          "link": null
+        },
+        {
+          "label": "strength_04",
+          "name": "strength_04",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_04"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            404
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            342
+          ]
+        }
+      ],
+      "title": "UPSCALE — TURBO & ENHANCEMENT LoRAs",
+      "properties": {
+        "Node name for S&R": "Lora Loader Stack (rgthree)",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "ttNbgOverride": {
+          "bgcolor": "#60391F",
+          "groupcolor": "#D38E40",
+          "color": "#74451D"
+        }
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors",
+        0.5,
+        "Restore_Enhance_Improve_rank16_v1_H3-lora.safetensors",
+        0.3,
+        "loracinematografico08.safetensors",
+        0.6,
+        "MysticXXX_MMH3-V4-ref2va.safetensors",
+        0
+      ],
+      "widgets_values_named": {
+        "lora_01": "minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors",
+        "strength_01": 0.5,
+        "lora_02": "Restore_Enhance_Improve_rank16_v1_H3-lora.safetensors",
+        "strength_02": 0.3,
+        "lora_03": "loracinematografico08.safetensors",
+        "strength_03": 0.6,
+        "lora_04": "MysticXXX_MMH3-V4-ref2va.safetensors",
+        "strength_04": 0
+      },
+      "color": "#cf2a2a",
+      "bgcolor": "#3e2525"
+    },
+    {
+      "id": 189,
+      "type": "PixaromaRunTimer",
+      "pos": [
+        784.6128707932941,
+        1240.6959009614488
+      ],
+      "size": [
+        415,
+        147
+      ],
+      "flags": {
+        "no_title": true,
+        "pinned": true
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "RENDER TIMER",
+      "properties": {
+        "Node name for S&R": "PixaromaRunTimer",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "runTimerLastMs": 724014
+      },
+      "color": "#1d1d1d",
+      "bgcolor": "#2a2a2a"
+    },
+    {
+      "id": 191,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        3102.4176938219357,
+        -12.519482494523965
+      ],
+      "size": [
+        513.6120431179334,
+        1221.313614747113
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 346
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 347
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "slot_index": 0,
+          "links": null
+        }
+      ],
+      "title": "H3 VIDEO OUTPUT — BASE AUDIO PRESERVED (24 FPS)",
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 24,
+        "loop_count": 0,
+        "filename_prefix": "H3_Director/H3_clip",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true
+      },
+      "widgets_values_named": {
+        "frame_rate": 24,
+        "loop_count": 0,
+        "filename_prefix": "H3_Director_Demo/H3_clip",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": 19,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "H3_clip_00015-audio.mp4",
+            "subfolder": "H3_Director_Demo",
+            "type": "output",
+            "format": "video/h264-mp4",
+            "frame_rate": 24,
+            "workflow": "H3_clip_00015.png",
+            "fullpath": "I:\\Aimage\\StabilityMatrix\\Data\\Packages\\ComfyUI\\output\\H3_Director_Demo\\H3_clip_00015-audio.mp4",
+            "metadata": {
+              "kind": "video",
+              "width": 832,
+              "height": 1472,
+              "duration": 7.083333333333333,
+              "fps": 24,
+              "frame_count": 170
+            }
+          }
+        }
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 193,
+      "type": "ModelAttentionBackend",
+      "pos": [
+        534.7640899674352,
+        840.7543344246466
+      ],
+      "size": [
+        453.43133150396716,
+        96.60205592854118
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 401
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            402
+          ]
+        }
+      ],
+      "title": "BASE ONLY — ATTENTION BACKEND",
+      "properties": {
+        "Node name for S&R": "ModelAttentionBackend",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "comfy kitchen attention"
+      ],
+      "widgets_values_named": {
+        "attention": "comfy kitchen attention"
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29"
+    },
+    {
+      "id": 202,
+      "type": "UNETLoader",
+      "pos": [
+        527.8448991472948,
+        979.266807804958
+      ],
+      "size": [
+        456.1476625064363,
+        115.1152339046954
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "label": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            403
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — MODEL LOADER",
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "10Eros_Max_h3_fl2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "10Eros_Max_h3_fl2va_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      },
+      "color": "#cf2a2a",
+      "bgcolor": "#3e2525"
+    },
+    {
+      "id": 203,
+      "type": "ModelAttentionBackend",
+      "pos": [
+        528.9433780970749,
+        1137.1323783714113
+      ],
+      "size": [
+        456.326337485964,
+        88.8818294012085
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 404
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            405
+          ]
+        }
+      ],
+      "title": "UPSCALE ONLY — ATTENTION BACKEND",
+      "properties": {
+        "Node name for S&R": "ModelAttentionBackend",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "comfy kitchen attention"
+      ],
+      "widgets_values_named": {
+        "attention": "comfy kitchen attention"
+      },
+      "color": "#cf2a2a",
+      "bgcolor": "#3e2525"
+    },
+    {
+      "id": 205,
+      "type": "CLIPLoader",
+      "pos": [
+        1101.5837420411222,
+        539.0235542626488
+      ],
+      "size": [
+        280.0661895974333,
+        106
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip_name",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          },
+          "link": null
+        },
+        {
+          "label": "type",
+          "name": "type",
+          "type": "COMBO",
+          "widget": {
+            "name": "type"
+          },
+          "link": null
+        },
+        {
+          "label": "device",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            372,
+            373
+          ]
+        }
+      ],
+      "title": "MINIMAX H3 — TEXT ENCODER",
+      "properties": {
+        "Node name for S&R": "CLIPLoader",
+        "ue_properties": {
+          "version": "7.8",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "models": [
+          {
+            "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "ttNbgOverride": {
+          "bgcolor": "#193D2B",
+          "groupcolor": "#39A76C",
+          "color": "#187F46"
+        }
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 207,
+      "type": "H3CreativeWriter",
+      "pos": [
+        2235.1465068204593,
+        1348.1378456542184
+      ],
+      "size": [
+        330,
+        115
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "H3 Creative Writer",
+      "properties": {
+        "Image Studio": "v18",
+        "Node name for S&R": "H3CreativeWriter",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "h3cw_project_json": "{\"version\":1,\"brief\":\"crea una escena de comedia sitcom con aire desenfadado y expresiones comicas\\nsubject 1 va en autobus por una ciudad luminosa hacia su trabajo,es de noche y llama a su amiga por telefono.la voz de su amiga se escucha a menos volumen y con efecto de llamada telefonica\\nla camara es diagonal desde el pasillo central con ella cogiendo todo el encuadre\\ntoda la conversacion es en ingles\\nse adjunta una referencia de audio para subject 1\",\"rules\":\"\",\"initial_state\":\"\",\"model\":\"gemma4:12b\",\"endpoint\":\"http://127.0.0.1:11434\",\"context\":32768,\"max_tokens\":4096,\"temperature\":1,\"writer_engine\":\"native-020\",\"detail\":\"Enriquecido\",\"system_prompt\":\"Develop the user's scene into a rich, precise MiniMax H3 video prompt. The brief, explicit changes and actual neighboring prompts govern intent.\\nEnrich the requested action with useful visible details: gaze, gestures, expressions, posture, weight shifts, preparation, interaction, follow-through and relevant physical sound. Use varied, meaningful progression appropriate to the duration; keep the requested story, people, important objects, timing and endpoint.\\nKeep track of people and their positions, object ownership and locations, and open or closed doors. A state persists until an action changes it. Continue the preceding ending without replaying completed events. A segment boundary is not a cut, pause or conclusion.\\nHonor the requested camera and style. Describe visibility from its current viewpoint: a hidden contact may happen unseen; show its visible consequence rather than a hand reaching through an opaque surface. Do not move the camera merely to expose a hidden mechanism.\\nUse images for the roles requested in the paragraph. Several pictures may define the same person. An object, vehicle or environment is not an extra person. Establish appearance and clothing in subject_definitions; repeat them in the action only when relevant. Write specific retention notes about the traits actually used.\\nWrite descriptive prose in English. When the user asks someone to comment, explain, greet, joke, sing or say something without supplying the exact words, compose the actual natural words in the requested language and intent. \\n\\nAutomatically enriches the text by adding:\\nnatural and coherent facial micro-expressions\\ncoherent body movements\\nbreathing patterns suited to the type of scene\\nan attitude within the scene that reflects the character's personality\\nintonation and speech rhythm\\n\\n\\n\\nDescribing that the person speaks does not fulfil this request. When exact words are supplied, preserve them verbatim in their original language. Put actual words in <d> blocks with stable speaker IDs and language tags, within the chronological action.\\nKeep framing, movement, speech and natural sound coherent. Read visible lettering from the image; uncertain lettering is not permission to invent a name. Return only the complete final H3 prompt.\",\"keep_loaded\":false,\"refs\":[{\"file\":\"h3_creative_writer/b2814faf-1540-4ef6-95a6-8775567d4a99_Conservar_la_identidad_exacta__l.png\",\"name\":\"Conservar_la_identidad_exacta__l.png\",\"role\":\"auto\",\"subject\":1,\"note\":\"referencia facial subject 1\",\"retention\":\"fully_preserved\"},{\"file\":\"h3_creative_writer/7bec6684-e6f2-434c-b0c3-24295fc11aeb_Hoja_de_dise_…14311 tokens truncated…Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) laughs, her head tilting back slightly, and responds with a mischievous glint in her eyes, <d>[English] Because I might have gotten a couple of new piercings yesterday.</d>\\nThe phone audio crackles with a telephonic filter. The friend's voice replies quickly with a sharp, humorous tone: <d>[English] A couple? Piercings and men always come in twos, bitch.</d>\\n<Subject 1> (S1) reacts with a comedic, shocked expression, her eyes widening behind her glasses as she laughs into the phone. The city lights continue to blur past the window in the background.\\n\\noverall_soundscape:\\nThe interior of the bus has a steady hum, and the muffled sound of tires on pavement is audible. The phone conversation is layered with a tinny, low-fidelity telephonic filter.\\n\\nnon_diegetic_music:\\nN/A\",\"summary\":\"[reference generation] The target video features <Subject 1> riding a bus through a brightly lit city at night. She is seen from a diagonal angle from the center aisle of the bus, sitting in the second-to-last row. She engages in a humorous, fast-paced conversation in English with her friend via phone.\",\"shots\":[{\"start\":0,\"description\":\"The scene is captured from a high-angle diagonal perspective from the center aisle of a moving city bus. The interior is warmly lit by neon city lights streaming through the windows. <Subject 1> sits in the second-to-last row, her seat positioned directly against the window. She is wearing a loose black cotton hoodie with pink accents. She holds a smartphone to her ear, looking slightly away from the camera with expressive, comedic facial movements. The scene begins with the sound of two distinct phone ringtones. Immediately after, a muffled phone call tone begins.\\n<Subject 1> (S1) smiles widely and says, <d>[English] Hi, babe! How are you?</d>\\nAs she speaks, she makes a playful gesture with her free hand.\\nA muffled voice comes through the phone: <d>[English] Fine. Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) laughs, her head tilting back slightly, and responds with a mischievous glint in her eyes, <d>[English] Because I might have gotten a couple of new piercings yesterday.</d>\\nThe phone audio crackles with a telephonic filter. The friend's voice replies quickly with a sharp, humorous tone: <d>[English] A couple? Piercings and men always come in twos, bitch.</d>\\n<Subject 1> (S1) reacts with a comedic, shocked expression, her eyes widening behind her glasses as she laughs into the phone. The city lights continue to blur past the window in the background.\"}],\"soundscape\":\"The interior of the bus has a steady hum, and the muffled sound of tires on pavement is audible. The phone conversation is layered with a tinny, low-fidelity telephonic filter.\",\"music\":\"N/A\",\"opening_state\":\"The scene is captured from a high-angle diagonal perspective from the center aisle of a moving city bus. The interior is warmly lit by neon city lights streaming through the windows. <Subject 1> sits in the second-to-last row, her seat positioned directly against the window. She is wearing a loose black cotton hoodie with pink accents. She holds a smartphone to her ear, looking slightly away from the camera with expressive, comedic facial movements. The scene begins with the sound of two distinct phone ringtones. Immediately after, a muffled phone call tone begins.\\n<Subject 1> (S1) smiles widely and says, <d>[English] Hi, babe! How are you?</d>\\nAs she speaks, she makes a playful gesture with her free hand.\\nA muffled voice comes through the phone: <d>[English] Fine. Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) laughs, her head tilting back slightly, and responds with a mischievous glint in her eyes, <d>[English] Because I might have gotten a couple of new piercings yesterday.</d>\\nThe phone audio crackles with a telephonic filter. The friend's voice replies quickly with a sharp, humorous tone: <d>[English] A couple? Piercings and men always come in twos, bitch.</d>\\n<Subject 1> (S1) reacts with a comedic, shocked expression, her eyes widening behind her glasses as she laughs into the phone. The city lights continue to blur past the window in the background.\",\"ending_state\":\"The scene is captured from a high-angle diagonal perspective from the center aisle of a moving city bus. The interior is warmly lit by neon city lights streaming through the windows. <Subject 1> sits in the second-to-last row, her seat positioned directly against the window. She is wearing a loose black cotton hoodie with pink accents. She holds a smartphone to her ear, looking slightly away from the camera with expressive, comedic facial movements. The scene begins with the sound of two distinct phone ringtones. Immediately after, a muffled phone call tone begins.\\n<Subject 1> (S1) smiles widely and says, <d>[English] Hi, babe! How are you?</d>\\nAs she speaks, she makes a playful gesture with her free hand.\\nA muffled voice comes through the phone: <d>[English] Fine. Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) laughs, her head tilting back slightly, and responds with a mischievous glint in her eyes, <d>[English] Because I might have gotten a couple of new piercings yesterday.</d>\\nThe phone audio crackles with a telephonic filter. The friend's voice replies quickly with a sharp, humorous tone: <d>[English] A couple? Piercings and men always come in twos, bitch.</d>\\n<Subject 1> (S1) reacts with a comedic, shocked expression, her eyes widening behind her glasses as she laughs into the phone. The city lights continue to blur past the window in the background.\",\"subject_descriptions\":{},\"retention_notes\":{}},\"accepted\":false,\"stale\":true,\"direction\":\"va sentada en la penultima fila del autobus,la fila solo tiene su asiento pegado a la ventana\\nla escena empieza con dos tonos de llamada y su amiga le coge la llamada\\n\\n-sujeto 1:¡Hola, cariño! ¿Cómo estás?\\n-amiga:Bien. ¿Por qué suenas sospechosamente feliz?\\n-subject 1:Porque ayer igual me hice un par de piercings nuevos.\\n-amiga: ¿Un par? Los Piercings y los hombres siempre de dos en dos,zorra.\",\"dialogues\":\"\"},{\"data\":{\"h3_prompt\":\"subject_definitions:\\n<Subject 1> is the woman whose facial features, tattoos, and hair are taken from <Picture 1>, and whose body and physique are based on <Picture 2>. She has black hair with pink highlights, wears large round glasses, and features extensive colorful floral and skull tattoos across her face, neck, and body. For this scene, she wears a black oversized hoodie with pink accents and matching wide-leg cotton sweatpants.\\n<Subject 2> is the voice of the friend on the phone, heard through a telephone filter.\\n\\nsummary:\\n[reference generation] The target video features <Subject 1> sitting on a bus at night in a brightly lit city. She is seen in a single continuous shot from a diagonal perspective from the center aisle, holding a phone and having a comedic conversation in English with a friend (S2).\\n\\nretention_analysis:\\n<Subject 1> (appears in [Shot 1]): fully_preserved - the facial features from <Picture 1> and the body from <Picture 2> are preserved, updated with the specified hoodie and sweatpants.\\n<Picture 1> ([Shot 1]): fully_preserved - used for the facial identity of <Subject 1>.\\n<Picture 2> ([Shot 1]): fully_preserved - used for the body structure of <Subject 1>.\\n\\ndetailed_description:\\nThe target video is a sitcom-style scene with a relaxed, humorous atmosphere. The lighting is vibrant, reflecting the neon lights of a bustling city at night.\\n[Shot 1] The scene is a single continuous shot. The camera is positioned at a diagonal angle from the center aisle of a bus, capturing <Subject 1> who occupies the entire frame. She is seated in the second-to-last row, her seat positioned right against the window. She is dressed in a black oversized hoodie with pink accents and wide-leg cotton sweatpants. Her face, featuring prominent tattoos and round glasses, is visible as she holds a smartphone to her ear. The interior of the bus is lit by the colorful, streaking lights of the city passing by outside the window. The scene begins with two distinct ringtones, and then a voice is heard through a muffled telephone filter.\\n<Subject 1> (S1) smiles brightly and speaks with a cheerful, upbeat tone. <d>[English] Hi, babe! How are you?</d>\\nA muffled, slightly distorted voice of a woman (S2) responds through the phone. <d>[English] Good. Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) giggles, her eyes widening with a playful, comedic expression as she leans slightly toward the window. <d>[English] Because I just got a couple of new piercings yesterday.</d>\\nThe girl on the phone (S2) responds with a sarcastic, humorous tone. <d>[English] A couple? Piercings and men always come in pairs, bitch.</d>\\n<Subject 1> (S1) reacts with a comical, exaggerated shocked expression, her mouth dropping open slightly as she laughs heartily at the joke.\\n\\noverall_soundscape:\\nThe low hum of a bus engine and the muffled rumble of tires on pavement are heard. The city's ambient sounds are muted behind the bus windows. The voice of the friend on the phone has a distinct, thin electronic telephone filter.\\n\\nnon_diegetic_music:\\nN/A\",\"summary\":\"[reference generation] The target video features <Subject 1> sitting on a bus at night in a brightly lit city. She is seen in a single continuous shot from a diagonal perspective from the center aisle, holding a phone and having a comedic conversation in English with a friend (S2).\",\"shots\":[{\"start\":0,\"description\":\"The scene is a single continuous shot. The camera is positioned at a diagonal angle from the center aisle of a bus, capturing <Subject 1> who occupies the entire frame. She is seated in the second-to-last row, her seat positioned right against the window. She is dressed in a black oversized hoodie with pink accents and wide-leg cotton sweatpants. Her face, featuring prominent tattoos and round glasses, is visible as she holds a smartphone to her ear. The interior of the bus is lit by the colorful, streaking lights of the city passing by outside the window. The scene begins with two distinct ringtones, and then a voice is heard through a muffled telephone filter.\\n<Subject 1> (S1) smiles brightly and speaks with a cheerful, upbeat tone. <d>[English] Hi, babe! How are you?</d>\\nA muffled, slightly distorted voice of a woman (S2) responds through the phone. <d>[English] Good. Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) giggles, her eyes widening with a playful, comedic expression as she leans slightly toward the window. <d>[English] Because I just got a couple of new piercings yesterday.</d>\\nThe girl on the phone (S2) responds with a sarcastic, humorous tone. <d>[English] A couple? Piercings and men always come in pairs, bitch.</d>\\n<Subject 1> (S1) reacts with a comical, exaggerated shocked expression, her mouth dropping open slightly as she laughs heartily at the joke.\"}],\"soundscape\":\"The low hum of a bus engine and the muffled rumble of tires on pavement are heard. The city's ambient sounds are muted behind the bus windows. The voice of the friend on the phone has a distinct, thin electronic telephone filter.\",\"music\":\"N/A\",\"opening_state\":\"The scene is a single continuous shot. The camera is positioned at a diagonal angle from the center aisle of a bus, capturing <Subject 1> who occupies the entire frame. She is seated in the second-to-last row, her seat positioned right against the window. She is dressed in a black oversized hoodie with pink accents and wide-leg cotton sweatpants. Her face, featuring prominent tattoos and round glasses, is visible as she holds a smartphone to her ear. The interior of the bus is lit by the colorful, streaking lights of the city passing by outside the window. The scene begins with two distinct ringtones, and then a voice is heard through a muffled telephone filter.\\n<Subject 1> (S1) smiles brightly and speaks with a cheerful, upbeat tone. <d>[English] Hi, babe! How are you?</d>\\nA muffled, slightly distorted voice of a woman (S2) responds through the phone. <d>[English] Good. Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) giggles, her eyes widening with a playful, comedic expression as she leans slightly toward the window. <d>[English] Because I just got a couple of new piercings yesterday.</d>\\nThe girl on the phone (S2) responds with a sarcastic, humorous tone. <d>[English] A couple? Piercings and men always come in pairs, bitch.</d>\\n<Subject 1> (S1) reacts with a comical, exaggerated shocked expression, her mouth dropping open slightly as she laughs heartily at the joke.\",\"ending_state\":\"The scene is a single continuous shot. The camera is positioned at a diagonal angle from the center aisle of a bus, capturing <Subject 1> who occupies the entire frame. She is seated in the second-to-last row, her seat positioned right against the window. She is dressed in a black oversized hoodie with pink accents and wide-leg cotton sweatpants. Her face, featuring prominent tattoos and round glasses, is visible as she holds a smartphone to her ear. The interior of the bus is lit by the colorful, streaking lights of the city passing by outside the window. The scene begins with two distinct ringtones, and then a voice is heard through a muffled telephone filter.\\n<Subject 1> (S1) smiles brightly and speaks with a cheerful, upbeat tone. <d>[English] Hi, babe! How are you?</d>\\nA muffled, slightly distorted voice of a woman (S2) responds through the phone. <d>[English] Good. Why do you sound suspiciously happy?</d>\\n<Subject 1> (S1) giggles, her eyes widening with a playful, comedic expression as she leans slightly toward the window. <d>[English] Because I just got a couple of new piercings yesterday.</d>\\nThe girl on the phone (S2) responds with a sarcastic, humorous tone. <d>[English] A couple? Piercings and men always come in pairs, bitch.</d>\\n<Subject 1> (S1) reacts with a comical, exaggerated shocked expression, her mouth dropping open slightly as she laughs heartily at the joke.\",\"subject_descriptions\":{},\"retention_notes\":{}},\"accepted\":false,\"stale\":false,\"direction\":\"va sentada en la penultima fila del autobus,la fila solo tiene su asiento pegado a la ventana\\nla escena empieza con dos tonos de llamada y su amiga le coge la llamada\\n\\n-sujeto 1:¡Hola, cariño! ¿Cómo estás?\\n-amiga:Bien. ¿Por qué suenas sospechosamente feliz?\\n-subject 1:Porque ayer igual me hice un par de piercings nuevos.\\n-amiga: ¿Un par? Los Piercings y los hombres siempre de dos en dos,zorra.\",\"dialogues\":\"\"}]},{\"duration\":15,\"direction\":\"-sujeto 1: Tranquila. Son lindos. Te los enseño cuando llegue al trabajo.\\n-amiga: ¿Y dónde te los hiciste?\\n-sujeto 1:En un sitio en el que mi vecino guapo, definitivamente, no vera cuando pasa por delante\\n-amiga:Con lo bitch que eres. seguro que terminas enseñandoselos.\",\"dialogues\":\"\",\"accepted\":false,\"stale\":true,\"data\":{\"h3_prompt\":\"subject_definitions:\\n<Subject 1> is a young woman whose face is based on <Picture 1> and whose body is based on <Picture 2>. She has short black hair with a fringe, and large, decorative facial tattoos on her left cheek and neck. She wears round glasses with dark frames. She wears a black hoodie with pink accents and wide-leg cotton sweatpants.\\n<Subject 2> is a female friend of <Subject 1> who appears only as a voice over the phone.\\n\\nsummary:\\n[reference generation] The target video continues the comedy skit as <Subject 1> sits on a bus at night, having a flirtatious and humorous conversation with <Subject 2> via phone. The scene is captured from a diagonal perspective from the bus aisle.\\n\\nretention_analysis:\\n<Subject 1> (appears in [Shot 1]): fully_preserved - the facial features from <Picture 1>, the body structure from <Picture 2>, and the specific tattoo details are retained.\\n<Picture 1> (face): fully_preserved - the facial appearance and tattoos are preserved.\\n<Picture 2> (body/wardrobe): fully_preserved - the physical build and tattoo patterns are retained, with the wardrobe updated to a black and pink hoodie and sweatpants.\\n\\ndetailed_description:\\nThe target video continues in a vibrant, slightly stylized sit-com style with warm lighting reflecting the city's neon lights through the bus windows.\\n[Shot 1] The camera remains in a steady diagonal position from the center aisle of the bus, framing <Subject 1> as she sits in the penultimate row against the window. The cityscape outside creates a colorful bokeh. <Subject 1> (S1) leans slightly toward the camera with a playful, confident expression as she speaks into her phone. She looks toward the lens with a slight grin, her eyes bright. <Subject 1> (S1) says, <d>[English] Chill out. They're cute. I'll show you when I get to work.</d> As she speaks, she makes a small, teasing gesture with her hand toward her face. The audio from <Subject 2> (S2) is heard with a distinct, muffled telephone filter. <Subject 2> (S2) asks, <d>[English] And where did you get them done?</d> <Subject 1> (S1) lets out a small, mischievous laugh and glances toward the window, her expression becoming conspiratorial as she replies, <d>[English] In a place where my hot neighbor definitely won't see when he walks by.</d> She rolls her eyes playfully and tilts her head. <Subject 2> (S2) responds with a rapid, sassy tone over the phone, <d>[English] You're such a bitch. I bet you'll end up showing them to me anyway.</d> <Subject 1> (S1) laughs out loud at the comment, her head tilting back slightly as she looks toward the camera with a mocking, \\\"guilty\\\" face, her eyes sparkling with humor.\\n\\noverall_soundscape:\\nThe steady, low-frequency hum of the bus engine and the rhythmic vibrations of the vehicle are constant. The muffled, muffled sounds of heavy tires on the road are heard faintly.\\n\\nnon_diegetic_music:\\nN/A\",\"summary\":\"[reference generation] The target video continues the comedy skit as <Subject 1> sits on a bus at night, having a flirtatious and humorous conversation with <Subject 2> via phone. The scene is captured from a diagonal perspective from the bus aisle.\",\"shots\":[{\"start\":0,\"description\":\"The camera remains in a steady diagonal position from the center aisle of the bus, framing <Subject 1> as she sits in the penultimate row against the window. The cityscape outside creates a colorful bokeh. <Subject 1> (S1) leans slightly toward the camera with a playful, confident expression as she speaks into her phone. She looks toward the lens with a slight grin, her eyes bright. <Subject 1> (S1) says, <d>[English] Chill out. They're cute. I'll show you when I get to work.</d> As she speaks, she makes a small, teasing gesture with her hand toward her face. The audio from <Subject 2> (S2) is heard with a distinct, muffled telephone filter. <Subject 2> (S2) asks, <d>[English] And where did you get them done?</d> <Subject 1> (S1) lets out a small, mischievous laugh and glances toward the window, her expression becoming conspiratorial as she replies, <d>[English] In a place where my hot neighbor definitely won't see when he walks by.</d> She rolls her eyes playfully and tilts her head. <Subject 2> (S2) responds with a rapid, sassy tone over the phone, <d>[English] You're such a bitch. I bet you'll end up showing them to me anyway.</d> <Subject 1> (S1) laughs out loud at the comment, her head tilting back slightly as she looks toward the camera with a mocking, \\\"guilty\\\" face, her eyes sparkling with humor.\"}],\"soundscape\":\"The steady, low-frequency hum of the bus engine and the rhythmic vibrations of the vehicle are constant. The muffled, muffled sounds of heavy tires on the road are heard faintly.\",\"music\":\"N/A\",\"opening_state\":\"The camera remains in a steady diagonal position from the center aisle of the bus, framing <Subject 1> as she sits in the penultimate row against the window. The cityscape outside creates a colorful bokeh. <Subject 1> (S1) leans slightly toward the camera with a playful, confident expression as she speaks into her phone. She looks toward the lens with a slight grin, her eyes bright. <Subject 1> (S1) says, <d>[English] Chill out. They're cute. I'll show you when I get to work.</d> As she speaks, she makes a small, teasing gesture with her hand toward her face. The audio from <Subject 2> (S2) is heard with a distinct, muffled telephone filter. <Subject 2> (S2) asks, <d>[English] And where did you get them done?</d> <Subject 1> (S1) lets out a small, mischievous laugh and glances toward the window, her expression becoming conspiratorial as she replies, <d>[English] In a place where my hot neighbor definitely won't see when he walks by.</d> She rolls her eyes playfully and tilts her head. <Subject 2> (S2) responds with a rapid, sassy tone over the phone, <d>[English] You're such a bitch. I bet you'll end up showing them to me anyway.</d> <Subject 1> (S1) laughs out loud at the comment, her head tilting back slightly as she looks toward the camera with a mocking, \\\"guilty\\\" face, her eyes sparkling with humor.\",\"ending_state\":\"The camera remains in a steady diagonal position from the center aisle of the bus, framing <Subject 1> as she sits in the penultimate row against the window. The cityscape outside creates a colorful bokeh. <Subject 1> (S1) leans slightly toward the camera with a playful, confident expression as she speaks into her phone. She looks toward the lens with a slight grin, her eyes bright. <Subject 1> (S1) says, <d>[English] Chill out. They're cute. I'll show you when I get to work.</d> As she speaks, she makes a small, teasing gesture with her hand toward her face. The audio from <Subject 2> (S2) is heard with a distinct, muffled telephone filter. <Subject 2> (S2) asks, <d>[English] And where did you get them done?</d> <Subject 1> (S1) lets out a small, mischievous laugh and glances toward the window, her expression becoming conspiratorial as she replies, <d>[English] In a place where my hot neighbor definitely won't see when he walks by.</d> She rolls her eyes playfully and tilts her head. <Subject 2> (S2) responds with a rapid, sassy tone over the phone, <d>[English] You're such a bitch. I bet you'll end up showing them to me anyway.</d> <Subject 1> (S1) laughs out loud at the comment, her head tilting back slightly as she looks toward the camera with a mocking, \\\"guilty\\\" face, her eyes sparkling with humor.\",\"subject_descriptions\":{},\"retention_notes\":{}},\"history\":[]},{\"duration\":5,\"direction\":\"la escena se funde a negro a modo de transicion y sale un texto con letras bold rosa fucsia que pone en ingles \\\"A few moments later....\\\" Y se escucha una voz masculina graciosa en off que dice lo mismo que el texto en ingles\",\"dialogues\":\"\",\"accepted\":false,\"stale\":true,\"data\":{\"h3_prompt\":\"subject_definitions:\\n<Subject 1> is a young woman whose face is based on <Picture 1> and whose body is based on <Picture 2>. She has short black hair with a fringe and large, decorative facial tattoos on her left cheek and neck. She wears round glasses with dark frames, a black hoodie with pink accents, and wide-leg cotton sweatpants.\\n<Subject 2> is a female friend of <Subject 1> who appears only as a voice over the phone.\\n\\nsummary:\\n[reference generation] The target video concludes the comedy skit with a transition to a black screen, featuring bold fuchsia text and a humorous male voice-over in English.\\n\\nretention_analysis:\\n<Subject 1> (appears in [Shot 1]): fully_preserved - the facial features from <Picture 1>, the body structure from <Picture 2>, and the specific tattoo details are retained.\\n<Picture 1> (face): fully_preserved - the facial appearance and tattoos are preserved.\\n<Picture 2> (body/wardrobe): fully_preserved - the physical build and tattoo patterns are retained, with the wardrobe being a black and pink hoodie and sweatpants.\\n\\ndetailed_description:\\nThe target video concludes with a stylistic transition common in comedy series.\\n[Shot 1] The scene begins with a smooth fade to black. Centered on the screen, the text \\\"A few moments later...\\\" appears in a bold, vibrant fuchsia pink font. A humorous, slightly high-pitched male voice-over performs the line. <Voice> (S3) speaks the line: <d>[English] A few moments later...</d> The text remains static as the voice completes the delivery, maintaining the humorous, dry tone of a sitcom transition.\\n\\noverall_soundscape:\\nThe low-frequency hum of the bus engine and the dull rumble of tires on the road fade out as the screen transitions to black.\\n\\nnon_diegetic_music:\\nN/A\",\"summary\":\"[reference generation] The target video concludes the comedy skit with a transition to a black screen, featuring bold fuchsia text and a humorous male voice-over in English.\",\"shots\":[{\"start\":0,\"description\":\"The scene begins with a smooth fade to black. Centered on the screen, the text \\\"A few moments later...\\\" appears in a bold, vibrant fuchsia pink font. A humorous, slightly high-pitched male voice-over performs the line. <Voice> (S3) speaks the line: <d>[English] A few moments later...</d> The text remains static as the voice completes the delivery, maintaining the humorous, dry tone of a sitcom transition.\"}],\"soundscape\":\"The low-frequency hum of the bus engine and the dull rumble of tires on the road fade out as the screen transitions to black.\",\"music\":\"N/A\",\"opening_state\":\"The scene begins with a smooth fade to black. Centered on the screen, the text \\\"A few moments later...\\\" appears in a bold, vibrant fuchsia pink font. A humorous, slightly high-pitched male voice-over performs the line. <Voice> (S3) speaks the line: <d>[English] A few moments later...</d> The text remains static as the voice completes the delivery, maintaining the humorous, dry tone of a sitcom transition.\",\"ending_state\":\"The scene begins with a smooth fade to black. Centered on the screen, the text \\\"A few moments later...\\\" appears in a bold, vibrant fuchsia pink font. A humorous, slightly high-pitched male voice-over performs the line. <Voice> (S3) speaks the line: <d>[English] A few moments later...</d> The text remains static as the voice completes the delivery, maintaining the humorous, dry tone of a sitcom transition.\",\"subject_descriptions\":{},\"retention_notes\":{}},\"history\":[{\"data\":{\"h3_prompt\":\"subject_definitions:\\n<Subject 1> is a young woman whose face is based on <Picture 1> and whose body is based on <Picture 2>. She has short black hair with a fringe, and large, decorative facial tattoos on her left cheek and neck. She wears round glasses with dark frames. She wears a black hoodie with pink accents and wide-leg cotton sweatpants.\\n<Subject 2> is a female friend of <Subject 1> who appears only as a voice over the phone.\\n\\nsummary:\\n[reference generation] The target video concludes the comedy skit with a stylistic transition. The scene transitions to a black screen featuring bold text \\\"UNOS INSTANTES DESPUÉS...\\\" accompanied by a funny male voice-over delivering the same phrase in English.\\n\\nretention_analysis:\\n<Subject 1> (appears in [Shot 1]): fully_preserved - the facial features from <Picture 1>, the body structure from <Picture 2>, and the specific tattoo details are retained.\\n<Picture 1> (face): fully_preserved - the facial appearance and tattoos are preserved.\\n<Picture 2> (body/wardrobe): fully_prepared - the physical build and tattoo patterns are retained, with the wardrobe updated to a black and pink hoodie and sweatpants.\\n\\ndetailed_description:\\nThe target video maintains a vibrant, sit-com-inspired aesthetic with bold visual elements.\\n[Shot 1] The scene begins with a smooth fade-to-black transition. As the screen turns completely black, large, bold, white sans-serif text appears in the center of the frame, reading \\\"UNOS INSTANTES DESPUÉS...\\\". Simultaneously, a humorous, exaggerated male voice-over is heard. The voice speaks with a playful, comical tone, articulating the words \\\"A few moments later...\\\" in English to match the Spanish text on screen. The text remains centered as the voice concludes. The shot ends after 5 seconds on the black screen with the text.\\n\\noverall_soundscape:\\nN/A\\n\\nnon_diegetic_music:\\nN/A\",\"summary\":\"[reference generation] The target video concludes the comedy skit with a stylistic transition. The scene transitions to a black screen featuring bold text \\\"UNOS INSTANTES DESPUÉS...\\\" accompanied by a funny male voice-over delivering the same phrase in English.\",\"shots\":[{\"start\":0,\"description\":\"The scene begins with a smooth fade-to-black transition. As the screen turns completely black, large, bold, white sans-serif text appears in the center of the frame, reading \\\"UNOS INSTANTES DESPUÉS...\\\". Simultaneously, a humorous, exaggerated male voice-over is heard. The voice speaks with a playful, comical tone, articulating the words \\\"A few moments later...\\\" in English to match the Spanish text on screen. The text remains centered as the voice concludes. The shot ends after 5 seconds on the black screen with the text.\"}],\"soundscape\":\"N/A\",\"music\":\"N/A\",\"opening_state\":\"The scene begins with a smooth fade-to-black transition. As the screen turns completely black, large, bold, white sans-serif text appears in the center of the frame, reading \\\"UNOS INSTANTES DESPUÉS...\\\". Simultaneously, a humorous, exaggerated male voice-over is heard. The voice speaks with a playful, comical tone, articulating the words \\\"A few moments later...\\\" in English to match the Spanish text on screen. The text remains centered as the voice concludes. The shot ends after 5 seconds on the black screen with the text.\",\"ending_state\":\"The scene begins with a smooth fade-to-black transition. As the screen turns completely black, large, bold, white sans-serif text appears in the center of the frame, reading \\\"UNOS INSTANTES DESPUÉS...\\\". Simultaneously, a humorous, exaggerated male voice-over is heard. The voice speaks with a playful, comical tone, articulating the words \\\"A few moments later...\\\" in English to match the Spanish text on screen. The text remains centered as the voice concludes. The shot ends after 5 seconds on the black screen with the text.\",\"subject_descriptions\":{},\"retention_notes\":{}},\"accepted\":false,\"stale\":true,\"direction\":\"la escena se funde a negro a modo de transicion y sale un texto con letras bold rosa fucsia que pone en ingles \\\"A few moments later....\\\" Y se escucha una voz masculina graciosa en off que dice lo mismo que el texto en ingles\",\"dialogues\":\"\"}]}],\"saved_at\":1794078649687,\"diagnostics\":[{\"done_reason\":\"stop\",\"prompt_eval_count\":10534,\"eval_count\":419,\"total_duration\":21190876800,\"phase\":\"Redactando tramo 3/3\",\"thinking_chars\":0,\"output_chars\":1749}],\"aspect_ratio\":\"9:16\"}",
+        "Abrir H3 Creative Writer": null,
+        "Generar prompts": null
+      },
+      "color": "#443066",
+      "bgcolor": "#211635"
+    },
+    {
+      "id": 214,
+      "type": "SpectrumApplyMiniMaxH3",
+      "pos": [
+        1395.3977869428886,
+        640.7081100295069
+      ],
+      "size": [
+        399.5397581161328,
+        658
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 402
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            406
+          ]
+        }
+      ],
+      "title": "SPECTRUM ONLY BASE 25 STEPS",
+      "properties": {
+        "Node name for S&R": "SpectrumApplyMiniMaxH3",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        false,
+        0.5,
+        1,
+        0.1,
+        2,
+        0.75,
+        1,
+        1,
+        8,
+        false,
+        "system_ram",
+        true,
+        false,
+        false,
+        true,
+        0,
+        "system_ram",
+        "off",
+        0.65,
+        false,
+        false,
+        "coordinate_rls",
+        "hard_clip",
+        0.4,
+        "no_attenuation",
+        "balanced"
+      ],
+      "widgets_values_named": {
+        "enabled": false,
+        "blend_weight": 0.5,
+        "degree": 1,
+        "ridge_lambda": 0.1,
+        "window_size": 2,
+        "flex_window": 0.75,
+        "warmup_steps": 1,
+        "tail_actual_steps": 1,
+        "max_history": 8,
+        "debug": false,
+        "history_storage": "system_ram",
+        "bootstrap_first_forecast": true,
+        "anchor_residual_feedback": false,
+        "selective_rollback_correction": false,
+        "offline_smoothing_replay": true,
+        "audio_blend_weight": 0,
+        "offline_archive_storage": "system_ram",
+        "model_aware_mode": "off",
+        "model_aware_risk_threshold": 0.65,
+        "model_aware_trust_shrinkage": false,
+        "model_aware_replay_generic_correction": false,
+        "generic_correction_mode": "coordinate_rls",
+        "generic_correction_limiter": "hard_clip",
+        "generic_correction_limit": 0.4,
+        "generic_correction_attenuation": "no_attenuation",
+        "sa_pece_forecast_policy": "balanced"
+      },
+      "color": "#f66744",
+      "bgcolor": "#442e29",
+      "shape": 2
+    },
+    {
+      "id": 216,
+      "type": "ModelPreviewOverrideKJ",
+      "pos": [
+        1401.970932372188,
+        -5.173308211956191
+      ],
+      "size": [
+        402.8950545763064,
+        593.4128863079598
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 406
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": 391
+        },
+        {
+          "name": "audio_vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            407
+          ]
+        }
+      ],
+      "title": "PREVIEW BASE",
+      "properties": {
+        "Node name for S&R": "ModelPreviewOverrideKJ",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.8",
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "996b010ae4613ae0743121ace5975830dcf8e6af",
+        "kjPovPanelH": 146
+      },
+      "widgets_values": [
+        0,
+        80,
+        true,
+        48,
+        24,
+        "taeh3.safetensors",
+        ""
+      ],
+      "widgets_values_named": {
+        "max_resolution": 0,
+        "jpeg_quality": 80,
+        "suppress_default_preview": true,
+        "preview_frames": 48,
+        "preview_fps": 24,
+        "tiny_vae": "taeh3.safetensors",
+        "preview": ""
+      },
+      "color": "#50c2d3",
+      "bgcolor": "#2b3c3e"
+    },
+    {
+      "id": 217,
+      "type": "MarkdownNote",
+      "title": "README · Requirements and quick start",
+      "pos": [
+        520,
+        -470
+      ],
+      "size": [
+        1260,
+        430
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 16,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "# H3 DIRECTOR STUDIO V2 — START HERE\n\n## Required before opening this workflow\n\n- **[ComfyUI-Pixaroma](https://gitlab.com/pixaroma/comfyui-pixaroma)** — required for the visible **Render Timer** node.\n- Current [ComfyUI](https://github.com/Comfy-Org/ComfyUI) with native MiniMax H3 support.\n- [ComfyUI-H3-Motion-Context](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) — continuity for motion and audio.\n- [ComfyUI-OBVPM-Timeline](https://github.com/chanon/comfyui-obvpm-timeline) — context windows for the Upscale pass.\n- A compatible **MinimaxH3LatentUpscaler3D** provider.\n\n## Workflow node packages\n\n- [Deno custom nodes](https://github.com/Deno2026/comfyui-deno-custom-nodes) — reference image/audio loader.\n- [rgthree-comfy](https://github.com/rgthree/rgthree-comfy) — BASE and UPSCALE LoRA stacks.\n- [ComfyUI-Spectrum-MiniMax-H3](https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3) — Spectrum, wired to BASE only.\n- [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) — optional BASE preview.\n- [VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite) — final MP4 output.\n\n## Example model files shown in this workflow\n\n- **BASE:** `Minimax-h3_Singularity_ref2va_v1.3_Pruned_w4a8.safetensors`\n- **UPSCALE:** `10Eros_Max_h3_fl2va_pruned_int8_convrot.safetensors`\n- **Video VAE:** `minimax_h3_video_vae_int8_convrot.safetensors`\n- **Audio VAE:** `minimax_h3_audio_vae_fp32.safetensors`\n- **Text Encoder:** `qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors`\n\n## Quick use\n\n1. Add image/audio references, a global prompt and one prompt per segment.\n2. **Generate clip N** with the switch on BASE to review it; then use **Keep BASE → Upscale**.\n3. **Approve final → next clip** advances the selector. **Run Chain** continues automatically from the active clip.\n4. Seed mode is **Randomize**. Use **Lock current seed** only when you want to repeat a result.\n\nSpectrum is wired **only to BASE**. Use it with non-Turbo BASE sampling at around 25 steps; keep it out of the 3D latent-upscale branch.\n"
+      ]
+    }
+  ],
+  "links": [
+    [
+      323,
+      118,
+      1,
+      176,
+      1,
+      "CLIP"
+    ],
+    [
+      326,
+      65,
+      0,
+      176,
+      4,
+      "VAE"
+    ],
+    [
+      327,
+      66,
+      0,
+      176,
+      5,
+      "VAE"
+    ],
+    [
+      328,
+      145,
+      0,
+      176,
+      6,
+      "DENO_MINIMAX_H3_REFERENCE_IMAGES"
+    ],
+    [
+      342,
+      179,
+      1,
+      176,
+      3,
+      "CLIP"
+    ],
+    [
+      346,
+      176,
+      1,
+      191,
+      0,
+      "IMAGE"
+    ],
+    [
+      347,
+      176,
+      2,
+      191,
+      1,
+      "AUDIO"
+    ],
+    [
+      372,
+      205,
+      0,
+      179,
+      1,
+      "CLIP"
+    ],
+    [
+      373,
+      205,
+      0,
+      118,
+      1,
+      "CLIP"
+    ],
+    [
+      391,
+      65,
+      0,
+      216,
+      1,
+      "VAE"
+    ],
+    [
+      400,
+      69,
+      0,
+      118,
+      0,
+      "MODEL"
+    ],
+    [
+      401,
+      118,
+      0,
+      193,
+      0,
+      "MODEL"
+    ],
+    [
+      402,
+      193,
+      0,
+      214,
+      0,
+      "MODEL"
+    ],
+    [
+      403,
+      202,
+      0,
+      179,
+      0,
+      "MODEL"
+    ],
+    [
+      404,
+      179,
+      0,
+      203,
+      0,
+      "MODEL"
+    ],
+    [
+      405,
+      203,
+      0,
+      176,
+      2,
+      "MODEL"
+    ],
+    [
+      406,
+      214,
+      0,
+      216,
+      0,
+      "MODEL"
+    ],
+    [
+      407,
+      216,
+      0,
+      176,
+      0,
+      "MODEL"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "links_added_by_ue": [],
+    "KKvideo_latentpreview": false,
+    "0246.VERSION": [
+      0,
+      0,
+      4
+    ],
+    "VHS_latentpreview": false,
+    "ds": {
+      "scale": 0.5190142480079616,
+      "offset": [
+        -462.4802194164657,
+        390.98277857036044
+      ]
+    },
+    "VHS_KeepIntermediate": true,
+    "ue_links": [],
+    "KKvideo_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_latentpreviewrate": 0,
+    "frontendVersion": "1.58.5"
+  },
+  "extensions": {
+    "seed_widgets": {}
+  },
+  "version": 0.4
+}
