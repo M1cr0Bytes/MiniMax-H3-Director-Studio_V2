@@ -1,7 +1,6 @@
-"""H3 Director V1 integrated backend: expands hidden ComfyUI runtime nodes.
+"""Legacy H3 Director Studio V1 backend.
 
-This is a developer-stage implementation and is not certified against a local GPU.
-The original V8 class and extensions are not changed.
+The V1 code is retained for compatibility with existing V1 workflows.
 """
 import re
 import random
